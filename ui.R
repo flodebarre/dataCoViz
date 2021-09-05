@@ -103,7 +103,7 @@ fluidRow(
 )
 
 ), # Tab1
-tabPanel("BLABLA", "fdsf")
+tabPanel("Another tab", "a venir")
 )
 ))
 
