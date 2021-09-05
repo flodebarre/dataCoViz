@@ -1,11 +1,3 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
 library(shiny)
 
@@ -142,6 +134,7 @@ shinyServer(function(input, output) {
             # Difference to the mean
             brks <- c(-100, -50, -25, -15, -5, 5, 15, 25, 50, 100)
             pal <- colorspace::diverge_hcl(length(brks)-1, palette = input$pal) 
+            pal[(length(pal)+1)/2] <- gray(0.975) # mid point in white
         }
         
         # Order of the colors
@@ -153,7 +146,7 @@ shinyServer(function(input, output) {
 brd.col <- gray(0.6, 1)
 brd.lwd <- 0.5
 
-colNA <- gray(1)
+colNA <- gray(0.7)
 
 # Map theme
 mf_theme(mar = c(0, 0.2, 1.5, 0.5),
@@ -234,7 +227,7 @@ au ", format(as.Date(input$thedate), "%d/%m/%Y"), ", par lieu de résidence"
     # Size of the insets for DOM
     insetSize <- 0.075 # Size of the inset, fraction of plot
     dxy <- 0.025 # Space between them
-    y0 <- 0.1#0.065  # Minimum y position
+    y0 <- 0.065  # Minimum y position
     
     # Other inset parameters
     box.lwd <- 0.5 # Line width of the box arount inset

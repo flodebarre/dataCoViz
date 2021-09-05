@@ -18,6 +18,7 @@ vaccComm <- read.csv("data/vaccCom.csv", sep = ";")
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
+    tabsetPanel(tabPanel("Vaccination en France", 
     
     # Application title
     titlePanel("Taux de vaccination en France"),
@@ -65,21 +66,21 @@ shinyUI(fluidPage(
     
     
     fluidRow(
-        column(width = 4, radioButtons("DROM", "Afficher DROM", choices = list("oui" = "TRUE", "non" = "FALSE"))),
+        column(width = 4, radioButtons("DROM", "Afficher DROM ('oui' bugge sur le serveur)", choices = list("oui" = "TRUE", "non" = "FALSE"), selected = "FALSE")),
         column(width = 4, radioButtons("communes", "Afficher communes", choices = list("oui" = "TRUE", "non" = "FALSE"))),
         column(width = 4, radioButtons("villes", "Afficher villes", choices = list("oui" = "TRUE", "non" = "FALSE")))
     ),
     
     
     fluidRow(
-        column(width = 6, sliderInput("thedate",
+        column(width = 12, sliderInput("thedate",
                                       "Date",
                                       min = as.Date("2021-02-07","%Y-%m-%d"),
                                       max = as.Date(max(vaccEPCI$date),"%Y-%m-%d"),
                                       value = as.Date(max(vaccEPCI$date)),
                                       timeFormat = "%Y-%m-%d",
                                       step = 7
-                                      ), offset = 3
+                                      ), offset = 0
         ))
     ), # End wellPanel
 
@@ -97,7 +98,14 @@ shinyUI(fluidPage(
             #                     });
             #                 ')),
             
-plotOutput("map", width = "100%", height = "600px")
+fluidRow(
+    column(12, align = "center", plotOutput("map", width = "600px", height = "500px"))
+)
+
+), # Tab1
+tabPanel("BLABLA", "fdsf")
+)
 ))
+
 
 
