@@ -23,16 +23,18 @@ shinyUI(fluidPage(
     titlePanel("Taux de vaccination en France"),
     
     fluidRow(
-        HTML("<p>Données Ameli (<a href = 'https://datavaccin-covid.ameli.fr/explore/?exclude.theme=Datavisualisation&sort=modified'> source</a>). Code source sur <a href = ''>GitHub</a>. </p>")
-        column(2, p("kfld;sfkd sfl;dk slf dsf;sd")),
-        column(5, 
-#        verbatimTextOutput("ag"),
-#        verbatimTextOutput("xx"),
-        textOutput("yy"),
-#        verbatimTextOutput("agevalue"),
-#        verbatimTextOutput("value")
-        ), 
-column(5, verbatimTextOutput("ag"))
+        column(12, HTML("<p>Données Ameli (<a href = 'https://datavaccin-covid.ameli.fr/explore/?exclude.theme=Datavisualisation&sort=modified'> source</a>). Code source sur <a href = 'https://github.com/flodebarre/dataCoViz'>GitHub</a>. N'hésitez pas à soumettre une <a href = 'https://github.com/flodebarre/dataCoViz/issues'><i>issue</i></a> ou <a href = 'mailto:florence.debarre@normalesup.org?subject=ShinyApp_MapsFrance'>me contacter</a> si vous notez une erreur ou avez des suggestions pour mieux coder.<br/>
+'Correction d'âge' signifie que les taux de vaccination sont calculés comme si tous les EPCI avaient la même composition en âges que celle de la France entière. </p>"))
+#         , 
+#         column(2, p("kfld;sfkd sfl;dk slf dsf;sd")),
+#         column(5, 
+# #        verbatimTextOutput("ag"),
+# #        verbatimTextOutput("xx"),
+#         textOutput("yy"),
+# #        verbatimTextOutput("agevalue"),
+# #        verbatimTextOutput("value")
+#         ), 
+# column(5, verbatimTextOutput("ag"))
     ),
 
     wellPanel(
@@ -71,13 +73,13 @@ column(5, verbatimTextOutput("ag"))
     
     fluidRow(
         column(width = 6, sliderInput("thedate",
-                                      "Date :",
+                                      "Date",
                                       min = as.Date("2021-02-07","%Y-%m-%d"),
                                       max = as.Date(max(vaccEPCI$date),"%Y-%m-%d"),
                                       value = as.Date(max(vaccEPCI$date)),
                                       timeFormat = "%Y-%m-%d",
                                       step = 7
-                                      )
+                                      ), offset = 3
         ))
     ), # End wellPanel
 

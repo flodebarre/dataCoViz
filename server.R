@@ -93,14 +93,14 @@ shinyServer(function(input, output) {
             subCom <- merge(subCom, props, by = "classe_age")
 
             # Aggregate by EPCI
-            aggEPCI <- aggregate(subEPCI$proportionPop * subEPCI[, c("taux_cumu_1_inj", "taux_cumu_termine")], by =  list(epci = subEPCI$epci), FUN = sum)
+            aggEPCI <- aggregate(subEPCI$proportionPop * subEPCI[, c("taux_cumu_1_inj", "taux_cumu_termine")], by =  list(epci = subEPCI$epci), FUN = sum, na.rm = TRUE)
 
-            aggCom <- aggregate(subCom$proportionPop * subCom[, c("taux_cumu_1_inj", "taux_cumu_termine")], by =  list(commune_residence = subCom$commune_residence), FUN = sum)
+            aggCom <- aggregate(subCom$proportionPop * subCom[, c("taux_cumu_1_inj", "taux_cumu_termine")], by =  list(commune_residence = subCom$commune_residence), FUN = sum, na.rm = TRUE)
 
         }else{
             # Sum up values
-            aggEPCI <- aggregate(subEPCI[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine")], by = list(epci = subEPCI$epci), FUN = sum)
-            aggCom <- aggregate(subCom[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine")], by = list(commune_residence = subCom$commune_residence), FUN = sum)
+            aggEPCI <- aggregate(subEPCI[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine")], by = list(epci = subEPCI$epci), FUN = sum, na.rm = TRUE)
+            aggCom <- aggregate(subCom[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine")], by = list(commune_residence = subCom$commune_residence), FUN = sum, na.rm = TRUE)
 
             # Recompute taux
             aggEPCI$taux_cumu_1_inj <- aggEPCI$effectif_cumu_1_inj / aggEPCI$population_carto
