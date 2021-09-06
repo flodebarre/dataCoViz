@@ -45,17 +45,18 @@ shinyUI(fluidPage(
 
 h4("Données à inclure"),
 HTML("<p>Cliquez sur '<b>Calculer</b>' après avoir changé les valeurs de cette section.</p>"),
-HTML("<p>'<b>Correction d'âge</b>' signifie que les taux de vaccination sont calculés comme si tous les EPCI avaient la même composition en âges que celle de la France entière. </p>"),
+HTML("<p>'<b>Correction d'âge</b>' : si l'option 'non' est choisie, les taux bruts sont représentés. Si l'option 'oui' est choisie, les taux de vaccination sont calculés comme si tous les EPCI avaient la même composition en âges que celle de la France entière ; cette option permet d'éviter le biais de l'âge et de comparer des localités aux compositions démographiques différentes. </p>"),
 
 wellPanel(
     fluidRow(
         column(width = 9, checkboxGroupInput("agcl", "Classe(s) d'âge incluse(s)", 
-                                             choices = list("75- + ans" = "75 et +", 
-                                                            "65-74 ans" = "65-74", 
-                                                            "55-64 ans" = "55-64", 
-                                                            "40-54 ans" = "40-54", 
+                                             choices = list("00-19 ans" = "00-19", 
                                                             "20-39 ans" = "20-39", 
-                                                            "00-19 ans" = "00-19"), 
+                                                            "40-54 ans" = "40-54", 
+                                                            "55-64 ans" = "55-64", 
+                                                            "65-74 ans" = "65-74", 
+                                                            "75- + ans" = "75 et +"
+                                                            ), 
                                              selected = c("75 et +", "65-74", "55-64", "40-54", "20-39", "00-19"), inline = TRUE)
         ), 
         column(width = 3, align = "center", inline = TRUE, radioButtons("ageCorrection", "Correction d'âge", 
@@ -89,8 +90,21 @@ wellPanel(
     
     fluidRow(
         column(width = 4, offset = 1, selectInput("pal", "Couleurs", 
-                                      choices = list("Blue-Red", "Blue-Red 2", "Blue-Red 3", "Red-Green", "Purple-Green", "Purple-Brown", "Green-Brown", "Blue-Yellow 2", "Blue-Yellow 3",
-                                                     "Green-Orange", "Cyan-Magenta", "Tropic", "Broc", "Cork", "Vik"))),
+                                      choices = list("Bleu-Rouge" = "Blue-Red", 
+                                                     "Bleu-Rouge 2" = "Blue-Red 2", 
+                                                     "Bleu-Rouge 3" = "Blue-Red 3", 
+                                                     "Rouge-Vert" = "Red-Green", 
+                                                     "Violet-Vert" = "Purple-Green", 
+                                                     "Violet-Brun" = "Purple-Brown", 
+                                                     "Vert-Brun" = "Green-Brown", 
+                                                     "Bleu-Jaune 2" = "Blue-Yellow 2", 
+                                                     "Bleu-Jaune 3" = "Blue-Yellow 3",
+                                                     "Vert-Orange" = "Green-Orange", 
+                                                     "Cyan-Magenta" = "Cyan-Magenta", 
+                                                     "'Tropique'" = "Tropic", 
+                                                     "'Broc'" = "Broc", 
+                                                     "'Cork'" = "Cork", 
+                                                     "'Vik'" = "Vik"))),
         
         column(width = 3, checkboxInput("invCol", "Inverser les couleurs", FALSE)),
         column(width = 3, radioButtons("villes", "Afficher villes", choices = list("oui" = "TRUE", "non" = "FALSE"), inline = TRUE))
