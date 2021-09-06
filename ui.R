@@ -29,8 +29,8 @@ shinyUI(fluidPage(
     titlePanel("Taux de vaccination en France"),
     
     fluidRow(
-        column(12, HTML("<p>Les données sont publiques et disponibles sur le site Ameli (<a href = 'https://datavaccin-covid.ameli.fr/explore/?exclude.theme=Datavisualisation&sort=modified'>source</a>). <br/>Le code source de cette page est sur <a href = 'https://github.com/flodebarre/dataCoViz'>GitHub</a>. N'hésitez pas à soumettre une <a href = 'https://github.com/flodebarre/dataCoViz/issues'><i>issue</i></a> ou <a href = 'mailto:florence.debarre@normalesup.org?subject=ShinyApp_MapsFrance'>me contacter</a> si vous notez une erreur ou avez des suggestions pour mieux coder.</p>
-        <p>'Correction d'âge' signifie que les taux de vaccination sont calculés comme si tous les EPCI avaient la même composition en âges que celle de la France entière. </p>"))
+        column(12, HTML("<p>Les données sont publiques et disponibles sur le site Ameli (<a href = 'https://datavaccin-covid.ameli.fr/explore/?exclude.theme=Datavisualisation&sort=modified'>source</a>). <br/>Le code source de cette page est sur <a href = 'https://github.com/flodebarre/dataCoViz'>GitHub</a>. N'hésitez pas à soumettre une <a href = 'https://github.com/flodebarre/dataCoViz/issues'><i>issue</i></a> ou <a href = 'mailto:florence.debarre@normalesup.org?subject=ShinyApp_MapsFrance'>me contacter</a> si vous notez une erreur ou avez des suggestions pour mieux coder l'app et les cartes.</p>
+"))
 #         , 
 #         column(2, p("kfld;sfkd sfl;dk slf dsf;sd")),
 #         column(5, 
@@ -43,45 +43,60 @@ shinyUI(fluidPage(
 # column(5, verbatimTextOutput("ag"))
     ),
 
-    wellPanel(
+h4("Données à inclure"),
+p("Cliquez sur 'Calculer' après avoir changé les valeurs de cette section"),
+HTML("<p>'Correction d'âge' signifie que les taux de vaccination sont calculés comme si tous les EPCI avaient la même composition en âges que celle de la France entière. </p>"),
+wellPanel(
     fluidRow(
-        column(width = 3, radioButtons("var", "Variable à représenter", choices = list("Au moins une dose" = "1_inj", "Vaccination complète" = "termine"))),
-        column(width = 3, radioButtons("typeVar", "Type de variable", choices = list("Taux de vaccination" = "pourcent_cumu_", "Écart relatif à la moyenne nationale" = "pourcent_diff_cumu_"))),
-        column(width = 3, checkboxGroupInput("agcl", "Classe(s) d'âge incluse(s)", 
-                                      choices = list("75 ans et +" = "75 et +", 
-                                                     "65-74 ans" = "65-74", 
-                                                     "55-64 ans" = "55-64", 
-                                                     "40-54 ans" = "40-54", 
-                                                     "20-39 ans" = "20-39", 
-                                                     "00-19 ans" = "00-19"), 
-                                      selected = c("75 et +", "65-74", "55-64", "40-54", "20-39", "00-19"))
-               ), 
-        column(width = 3, radioButtons("ageCorrection", "Correction d'âge", 
+        column(width = 9, checkboxGroupInput("agcl", "Classe(s) d'âge incluse(s)", 
+                                             choices = list("75- + ans" = "75 et +", 
+                                                            "65-74 ans" = "65-74", 
+                                                            "55-64 ans" = "55-64", 
+                                                            "40-54 ans" = "40-54", 
+                                                            "20-39 ans" = "20-39", 
+                                                            "00-19 ans" = "00-19"), 
+                                             selected = c("75 et +", "65-74", "55-64", "40-54", "20-39", "00-19"), inline = TRUE)
+        ), 
+        column(width = 3, align = "center", inline = TRUE, radioButtons("ageCorrection", "Correction d'âge", 
                                        choices = list("oui" = "TRUE", "non" = "FALSE"), 
-                                       selected = "FALSE"))
-    ), 
-    
-    fluidRow(
-        column(width = 4, selectInput("pal", "Couleurs", 
-                                      choices = list("Blue-Red", "Blue-Red 2", "Blue-Red 3", "Red-Green", "Purple-Green", "Purple-Brown", "Green-Brown", "Blue-Yellow 2", "Blue-Yellow 3",
-                                                     "Green-Orange", "Cyan-Magenta", "Tropic", "Broc", "Cork", "Vik"))),
-        
-        column(width = 3, checkboxInput("invCol", "inverser", FALSE)),
-        column(width = 3, radioButtons("villes", "Afficher villes", choices = list("oui" = "TRUE", "non" = "FALSE")))
+                                       selected = "FALSE")),
     ),
-    
-    
-
     fluidRow(
-        column(width = 12, sliderInput("thedate",
+        column(width = 9, sliderInput("thedate",
                                       "Date",
                                       min = as.Date("2021-02-07","%Y-%m-%d"),
                                       max = as.Date(max(vaccEPCI$date),"%Y-%m-%d"),
                                       value = as.Date(max(vaccEPCI$date)),
                                       timeFormat = "%Y-%m-%d",
                                       step = 7
-                                      ), offset = 0
-        ))
+        ), offset = 0
+        ),
+        column(width = 3, align = "center", actionButton("calcAg", label = "Calculer", class = "btn-primary"))    
+    )
+    ),
+    
+h4("Affichage"),
+wellPanel(
+    fluidRow(
+        column(width = 4, radioButtons("var", "Variable à représenter", choices = list("Au moins une dose" = "1_inj", "Vaccination complète" = "termine")), offset = 2),
+        
+        column(width = 4, radioButtons("typeVar", "Type de variable", choices = list("Taux de vaccination" = "pourcent_cumu_", "Écart relatif à la moyenne nationale" = "pourcent_diff_cumu_"))),
+    ),
+    
+    fluidRow(
+        column(width = 4, offset = 1, selectInput("pal", "Couleurs", 
+                                      choices = list("Blue-Red", "Blue-Red 2", "Blue-Red 3", "Red-Green", "Purple-Green", "Purple-Brown", "Green-Brown", "Blue-Yellow 2", "Blue-Yellow 3",
+                                                     "Green-Orange", "Cyan-Magenta", "Tropic", "Broc", "Cork", "Vik"))),
+        
+        column(width = 3, checkboxInput("invCol", "inverser", FALSE)),
+        column(width = 3, radioButtons("villes", "Afficher villes", choices = list("oui" = "TRUE", "non" = "FALSE"), inline = TRUE))
+    ),
+    
+    
+
+    fluidRow(
+
+        )
     ), # End wellPanel
 
             # tags$head(tags$script('
@@ -120,7 +135,7 @@ fluidRow(
 fluidRow(HTML("&nbsp;"))
 
 ), # end of Tab1
-tabPanel("Another tab", "a venir")
+tabPanel("Another tab", "D'autres pages à venir")
 )
 ))
 

@@ -172,11 +172,14 @@ shinyServer(function(input, output) {
     cex.title.inset <- 0.8 # cex of the inset title
     cex.title.inset.2 <- 0.9 # cex of the inset title, communes
     
-
+    
+    getdata <- eventReactive(input$calcAg, wrangleData(fsubEPCI(), fsubCom()), ignoreNULL = FALSE)
+    # ignoreNULL=FALSE evaluates the result by default
+    
     output$map <- renderPlot({
         
         # Get the data
-        tmpdata <- wrangleData(fsubEPCI(), fsubCom())
+        tmpdata <- getdata()
         subEPCI <- tmpdata[["subEPCI"]]
         subCom <- tmpdata[["subCom"]]
         
@@ -258,7 +261,7 @@ au ", format(as.Date(input$thedate), "%d/%m/%Y"), ", par lieu de résidence"
     plotDROM <- function(map, tit){
         
         # Get the data
-        tmpdata <- wrangleData(fsubEPCI(), fsubCom())
+        tmpdata <- getdata()
         subEPCI <- tmpdata[["subEPCI"]]
         subCom <- tmpdata[["subCom"]]
         
@@ -286,7 +289,7 @@ au ", format(as.Date(input$thedate), "%d/%m/%Y"), ", par lieu de résidence"
     plotCommunes <- function(tit, deps){
         
         # Get the data
-        tmpdata <- wrangleData(fsubEPCI(), fsubCom())
+        tmpdata <- getdata()
         subEPCI <- tmpdata[["subEPCI"]]
         subCom <- tmpdata[["subCom"]]
         
