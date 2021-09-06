@@ -42,15 +42,17 @@ shinyServer(function(input, output) {
 
         
     # # Aggregate the values, with or without age correction
-    agCor <- reactive({input$ageCorrection})
-    
-    
+
     thevar <- reactive({paste0(input$typeVar, input$var)})
     
     ag <- reactive({input$agcl})
+    
     fsubEPCI <- reactive(vaccEPCI[which(is.element(vaccEPCI$classe_age, ag()) & vaccEPCI$date == input$thedate), ])
     fsubCom <- reactive(vaccCom[which(is.element(vaccCom$classe_age, ag()) & vaccCom$date == input$thedate), ])
     
+    thedate <- eventReactive(input$calcAg, input$thedate, ignoreNULL = FALSE)
+    ageCorr <- eventReactive(input$calcAg, input$ageCorrection, ignoreNULL = FALSE)
+    ages <- eventReactive(input$calcAg, input$agcl, ignoreNULL = FALSE)
     
     ### Function to compute rates, relative differences and corrected distributions
     wrangleData <- function(subEPCI, subCom){
@@ -189,7 +191,7 @@ shinyServer(function(input, output) {
         brks <- tmppal[["brks"]]
         
         # Map theme
-        mf_theme(mar = c(0, 0, 1.5, 0), #c(0, 0.2, 1.5, 0.5),
+        mf_theme(mar = c(0, 0, 2.5, 0), #c(0, 0.2, 1.5, 0.5),
                  bg = gray(1, 1))
 
         ## France metropolitaine ##
@@ -235,9 +237,22 @@ shinyServer(function(input, output) {
         }else{
             v2 <- "au moins une injection"
         }
+        
+        if(ageCorr() == "TRUE"){
+            v3 <- "avec correction d'âge"
+        }else{
+            v3 <- "sans correction d'âge"
+        }
+        
+        if(length(ages()) == 6){
+            v4 <- "tous âges"
+        }else{
+            v4 <- paste(paste(ages(), collapse = ", "), "ans")
+        }
 
     mf_title(txt = paste0("Pourcentage de vaccination ", v2, ", ", v1, "
-au ", format(as.Date(input$thedate), "%d/%m/%Y"), ", par lieu de résidence"
+au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence 
+", v4, " (", v3, ")"
     # Classe d'age ", ncl, 
     #                       #", Moyenne nationale ", round(100*get(paste0("moy_cumu_", var)), 1), "%"
                            ), bg = gray(1, 1), fg = gray(0, 1),

@@ -29,7 +29,7 @@ shinyUI(fluidPage(
     titlePanel("Taux de vaccination en France"),
     
     fluidRow(
-        column(12, HTML("<p>Les données sont publiques et disponibles sur le site Ameli (<a href = 'https://datavaccin-covid.ameli.fr/explore/?exclude.theme=Datavisualisation&sort=modified'>source</a>). <br/>Le code source de cette page est sur <a href = 'https://github.com/flodebarre/dataCoViz'>GitHub</a>. N'hésitez pas à soumettre une <a href = 'https://github.com/flodebarre/dataCoViz/issues'><i>issue</i></a> ou <a href = 'mailto:florence.debarre@normalesup.org?subject=ShinyApp_MapsFrance'>me contacter</a> si vous notez une erreur ou avez des suggestions pour mieux coder l'app et les cartes.</p>
+        column(12, HTML("<p>Les données sont publiques et disponibles sur le site Ameli (<a href = 'https://datavaccin-covid.ameli.fr/explore/?exclude.theme=Datavisualisation&sort=modified'>source</a>). <br/>Le code source de cette page est sur <a href = 'https://github.com/flodebarre/dataCoViz'>GitHub</a>. N'hésitez pas à soumettre une <a href = 'https://github.com/flodebarre/dataCoViz/issues'><i>issue</i></a> sur GitHub ou <a href = 'mailto:florence.debarre@normalesup.org?subject=ShinyApp_MapsFrance'>me contacter</a> si vous notez une erreur ou avez des suggestions pour mieux coder l'app et les cartes.</p>
 "))
 #         , 
 #         column(2, p("kfld;sfkd sfl;dk slf dsf;sd")),
@@ -44,8 +44,9 @@ shinyUI(fluidPage(
     ),
 
 h4("Données à inclure"),
-p("Cliquez sur 'Calculer' après avoir changé les valeurs de cette section"),
-HTML("<p>'Correction d'âge' signifie que les taux de vaccination sont calculés comme si tous les EPCI avaient la même composition en âges que celle de la France entière. </p>"),
+HTML("<p>Cliquez sur '<b>Calculer</b>' après avoir changé les valeurs de cette section.</p>"),
+HTML("<p>'<b>Correction d'âge</b>' signifie que les taux de vaccination sont calculés comme si tous les EPCI avaient la même composition en âges que celle de la France entière. </p>"),
+
 wellPanel(
     fluidRow(
         column(width = 9, checkboxGroupInput("agcl", "Classe(s) d'âge incluse(s)", 
@@ -62,7 +63,7 @@ wellPanel(
                                        selected = "FALSE")),
     ),
     fluidRow(
-        column(width = 9, sliderInput("thedate",
+        column(width = 12, sliderInput("thedate",
                                       "Date",
                                       min = as.Date("2021-02-07","%Y-%m-%d"),
                                       max = as.Date(max(vaccEPCI$date),"%Y-%m-%d"),
@@ -70,17 +71,20 @@ wellPanel(
                                       timeFormat = "%Y-%m-%d",
                                       step = 7
         ), offset = 0
-        ),
-        column(width = 3, align = "center", actionButton("calcAg", label = "Calculer", class = "btn-primary"))    
-    )
+        )
     ),
-    
+), 
+
+fluidRow(column(2, column(width = 3, align = "center", actionButton("calcAg", label = "Calculer", class = "btn-primary")), offset = 5)
+),
+
 h4("Affichage"),
+HTML("<i>Il n'y a pas besoin de cliquer sur 'Calculer' si vous ne changez que les options ci-dessous.</i>"),
 wellPanel(
     fluidRow(
         column(width = 4, radioButtons("var", "Variable à représenter", choices = list("Au moins une dose" = "1_inj", "Vaccination complète" = "termine")), offset = 2),
         
-        column(width = 4, radioButtons("typeVar", "Type de variable", choices = list("Taux de vaccination" = "pourcent_cumu_", "Écart relatif à la moyenne nationale" = "pourcent_diff_cumu_"))),
+        column(width = 4, radioButtons("typeVar", "Type de variable", choices = list("Taux de vaccination" = "pourcent_cumu_", "Écart relatif à la moyenne nationale" = "pourcent_diff_cumu_")))
     ),
     
     fluidRow(
@@ -88,7 +92,7 @@ wellPanel(
                                       choices = list("Blue-Red", "Blue-Red 2", "Blue-Red 3", "Red-Green", "Purple-Green", "Purple-Brown", "Green-Brown", "Blue-Yellow 2", "Blue-Yellow 3",
                                                      "Green-Orange", "Cyan-Magenta", "Tropic", "Broc", "Cork", "Vik"))),
         
-        column(width = 3, checkboxInput("invCol", "inverser", FALSE)),
+        column(width = 3, checkboxInput("invCol", "Inverser les couleurs", FALSE)),
         column(width = 3, radioButtons("villes", "Afficher villes", choices = list("oui" = "TRUE", "non" = "FALSE"), inline = TRUE))
     ),
     
@@ -122,14 +126,14 @@ fluidRow(
     column(1, align = "center", plotOutput("mapMartinique", width = wd1, height = hg1)),
     column(1, align = "center", plotOutput("mapGuyane", width = wd1, height = hg1)),
     column(1, align = "center", plotOutput("mapMayotte", width = wd1, height = hg1)),
-    column(1, align = "center", plotOutput("mapReunion", width = wd1, height = hg1)),
+    column(1, align = "center", plotOutput("mapReunion", width = wd1, height = hg1))
 ),
 
 
 fluidRow(
     column(3, align = "center", plotOutput("mapParis", width = wd2, height = hg2), offset = 2),
     column(3, align = "center", plotOutput("mapLyon", width = wd2, height = hg2)),
-    column(3, align = "center", plotOutput("mapMarseille", width = wd2, height = hg2)),
+    column(3, align = "center", plotOutput("mapMarseille", width = wd2, height = hg2))
 ),
 
 fluidRow(HTML("&nbsp;"))
