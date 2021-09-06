@@ -169,8 +169,8 @@ shinyServer(function(input, output) {
     mar.inset <-c(0, 0, 0.6, 0) # Margins of the inset
     line.title <- 0.5 # Line position of the inset title
     line.title.2 <- 0.2 # Line position of the inset titles, communes
-    cex.title.inset <- 0.6 # cex of the inset title
-    cex.title.inset.2 <- 0.7 # cex of the inset title, communes
+    cex.title.inset <- 0.8 # cex of the inset title
+    cex.title.inset.2 <- 0.9 # cex of the inset title, communes
     
 
     output$map <- renderPlot({
@@ -186,14 +186,14 @@ shinyServer(function(input, output) {
         brks <- tmppal[["brks"]]
         
         # Map theme
-        mf_theme(mar = c(0, 0.2, 1.5, 0.5),
+        mf_theme(mar = c(0, 0, 1.5, 0), #c(0, 0.2, 1.5, 0.5),
                  bg = gray(1, 1))
 
         ## France metropolitaine ##
         tmp <- merge(france, subEPCI, by.x = "SIREN", by.y = "epci")
         
         # Initiate a base map
-        mf_init(x = tmp, expandBB = c(0, 0.1, 0.05, 0.175))
+        mf_init(x = tmp, expandBB = rep(0, 4))#c(0, 0.1, 0.05, 0.175))
         
         # Plot choropleth
         mf_map(tmp,
@@ -248,193 +248,7 @@ au ", format(as.Date(input$thedate), "%d/%m/%Y"), ", par lieu de résidence"
                       packageVersion("mapsf")), cex = 0.8)
 
 
-    #-----------------------------------------------------------------------
-    ### INSETS ###
-    
-    
-    if(input$DROM == "TRUE"){
-    ## Guadeloupe ##
-    
-    mf_inset_on(fig = c(0, insetSize, y0 + 2*insetSize + 2*dxy, y0 + 3*insetSize + 2*dxy))
-    # Merge map and data
-    tmp <- merge(guadeloupe, subEPCI, by.x = "SIREN_EPCI", by.y = "epci")
-    # Plot map
-    
-    mf_theme(mar = mar.inset)
-    mf_init(tmp, expandBB = BB.inset)
-    mf_map(tmp, type = "choro", 
-           var = thevar(),
-           breaks = brks, pal = pal, 
-           border = brd.col, lwd = brd.lwd, 
-           leg_pos = "n", 
-           col_na = colNA
-    )
-    mf_title("Guadeloupe", tab = TRUE, inner = FALSE, cex = cex.title.inset, fg = 1, bg = gray(0, 0), line = line.title, pos = "center")
-    
-    # add a frame
-    box(lwd = box.lwd, col = box.col)
-    mf_inset_off()
-    
-    
-    ## Martinique ##
-    
-    mf_inset_on(fig = c(0, insetSize, y0 + 1*insetSize + 1*dxy, y0 + 2*insetSize + 1*dxy))
-    # Merge map and data
-    tmp <- merge(martinique, subEPCI, by.x = "SIREN_EPCI", by.y = "epci")
-    # Plot map
-    mf_theme(mar = mar.inset)
-    mf_init(tmp, expandBB = BB.inset)
-    mf_map(tmp, type = "choro", 
-           var = thevar(),
-           breaks = brks, pal = pal, 
-           border = brd.col, lwd = brd.lwd, 
-           leg_pos = "n", 
-           col_na = colNA
-    )
-    mf_title("Martinique", tab = TRUE, inner = FALSE, cex = cex.title.inset, fg = 1, bg = gray(0, 0), line = line.title, pos = "center")
-    # add a frame
-    box(lwd = box.lwd, col = box.col)
-    mf_inset_off()
-    
-    
-    ## Guyane ## 
-    
-    mf_inset_on(fig = c(0, insetSize, y0 + 0*insetSize + 0*dxy, y0 + 1*insetSize + 0*dxy))
-    # Merge map and data
-    tmp <- merge(guyane, subEPCI, by.x = "SIREN_EPCI", by.y = "epci")
-    # Plot map
-    mf_theme(mar = mar.inset)
-    mf_init(tmp, expandBB = BB.inset)
-    mf_map(tmp, type = "choro", 
-           var = thevar(),
-           breaks = brks, pal = pal, 
-           border = brd.col, lwd = brd.lwd, 
-           leg_pos = "n", 
-           col_na = colNA
-    )
-    mf_title("Guyane", tab = TRUE, inner = FALSE, cex = cex.title.inset, fg = 1, bg = gray(0, 0), line = line.title, pos = "center")
-    # add a frame
-    box(lwd = box.lwd, col = box.col)
-    mf_inset_off()
-    
-    
-    ## Mayotte ##
-    
-    mf_inset_on(fig = c(insetSize + dxy, 2*insetSize + dxy, y0 + 1*insetSize + 1*dxy, y0 + 2*insetSize + 1*dxy))
-    # Merge map and data
-    tmp <- merge(mayotte, subEPCI, by.x = "SIREN", by.y = "epci")
-    # Plot map
-    mf_theme(mar = mar.inset)
-    mf_init(tmp, expandBB = BB.inset)
-    mf_map(tmp, type = "choro", 
-           var = thevar(),
-           breaks = brks, pal = pal, 
-           border = brd.col, lwd = brd.lwd, 
-           leg_pos = "n", 
-           col_na = colNA
-    )
-    mf_title("Mayotte", tab = TRUE, inner = FALSE, cex = cex.title.inset, fg = 1, bg = gray(0, 0), line = line.title, pos = "center")
-    # add a frame
-    box(lwd = box.lwd, col = box.col)
-    mf_inset_off()
-    
 
-    ## La Réunion ##
-
-    mf_inset_on(fig = c(insetSize + dxy, 2*insetSize + dxy, y0 + 0*insetSize + 0*dxy, y0 + 1*insetSize + 0*dxy))
-    # Merge map and data
-    tmp <- merge(reunion, subEPCI, by.x = "SIREN_EPCI", by.y = "epci")
-    # Plot map
-    mf_theme(mar = mar.inset)
-    mf_init(tmp, expandBB = BB.inset)
-    mf_map(tmp, type = "choro",
-           var = thevar(),
-           breaks = brks, pal = pal,
-           border = brd.col, lwd = brd.lwd,
-           leg_pos = "n",
-           col_na = colNA
-    )
-    mf_title("La Réunion", tab = TRUE, inner = FALSE, cex = cex.title.inset, fg = 1, bg = gray(0, 0), line = line.title, pos = "center")
-    # add a frame
-    box(lwd = box.lwd, col = box.col)
-    mf_inset_off()
-    
-        
-    }# End inset DROM
-    
-    ### Insets communes ###
-    
-    #lines(0, 0, col = 2)
-    
-    if(input$communes == "TRUE"){
-    insetSize2 <- 0.225
-    dxy2 <- 0.025
-    
-    
-    ## Paris ## 
-    
-    deps <- c("75", "91", "92", "93", "94", "95")
-    
-    mf_inset_on(fig = c(1 - insetSize2, 1, 1 - insetSize2, 1))
-    # Subset of departements for Ile-de-France
-    tmp <- merge(tca, subCom[is.element(substr(subCom$commune_residence, 1, 2), deps), ], by.x = "insee", by.y = "commune_residence")
-    dim(tmp)
-    # Plot map
-    mf_theme(mar = mar.inset)
-    mf_map(tmp, type = "choro", 
-           var = thevar(),
-           breaks = brks, pal = pal, 
-           border = brd.col, lwd = brd.lwd, 
-           leg_pos = "n", 
-           col_na = colNA
-    )
-    mf_title("Paris et autour", tab = TRUE, inner = FALSE, cex = cex.title.inset.2, fg = 1, bg = gray(0, 0), line = line.title.2, pos = "center")
-    box(lwd = box.lwd, col = box.col)
-    mf_inset_off()
-    
-    
-    ## Lyon ##
-    
-    deps <- c("69")
-    
-    mf_inset_on(fig = c(1 - insetSize2, 1, 1 - 2*insetSize2 - dxy2, 1 - insetSize2 - dxy2))
-    # Subset of departements for Lyon
-    tmp <- merge(tca, subCom[is.element(substr(subCom$commune_residence, 1, 2), deps), ], by.x = "insee", by.y = "commune_residence")
-    # Plot map
-    mf_theme(mar = mar.inset)
-    mf_map(tmp, type = "choro", 
-           var = thevar(),
-           breaks = brks, pal = pal, 
-           border = brd.col, lwd = brd.lwd, 
-           leg_pos = "n", 
-           col_na = colNA
-    )
-    mf_title("Lyon et autour", tab = TRUE, inner = FALSE, cex = cex.title.inset.2, fg = 1, bg = gray(0, 0), line = line.title.2, pos = "center")
-    box(lwd = box.lwd, col = box.col)
-    mf_inset_off()
-    
-    
-    ## Marseille ##
-    
-    deps <- c("13", "83", "84")
-    
-    mf_inset_on(fig = c(1 - insetSize2, 1, 1 - 3*insetSize2 - 2*dxy2, 1 - 2*insetSize2 - 2*dxy2))
-    # Subset of departements for Marseille
-    tmp <- merge(tca, subCom[is.element(substr(subCom$commune_residence, 1, 2), deps), ], by.x = "insee", by.y = "commune_residence")
-    # Plot map
-    mf_theme(mar = mar.inset)
-    mf_map(tmp, type = "choro", 
-           var = thevar(),
-           breaks = brks, pal = pal, 
-           border = brd.col, lwd = brd.lwd, 
-           leg_pos = "n", 
-           col_na = colNA
-    )
-    mf_title("Marseille et autour", tab = TRUE, inner = FALSE, cex = cex.title.inset.2, fg = 1, bg = gray(0, 0), line = line.title.2, pos = "center")
-    box(lwd = box.lwd, col = box.col)
-    mf_inset_off()
-    
-    } # End inset communes
     #-----------------------------------------------------------------------
 
     
@@ -505,7 +319,7 @@ au ", format(as.Date(input$thedate), "%d/%m/%Y"), ", par lieu de résidence"
     })
     
     output$mapGuyane <- renderPlot({
-        plotDROM(guyane, "Guayane")
+        plotDROM(guyane, "Guyane")
     })
 
     output$mapReunion <- renderPlot({
