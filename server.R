@@ -178,8 +178,8 @@ shinyServer(function(input, output) {
     getdata <- eventReactive(input$calcAg, wrangleData(fsubEPCI(), fsubCom()), ignoreNULL = FALSE)
     # ignoreNULL=FALSE evaluates the result by default
     
-    output$map <- renderPlot({
-        
+    # Function to plot map
+    plotMap <- reactive({
         # Get the data
         tmpdata <- getdata()
         subEPCI <- tmpdata[["subEPCI"]]
@@ -193,7 +193,7 @@ shinyServer(function(input, output) {
         # Map theme
         mf_theme(mar = c(0, 0, 2.5, 0), #c(0, 0.2, 1.5, 0.5),
                  bg = gray(1, 1))
-
+        
         ## France metropolitaine ##
         tmp <- merge(france, subEPCI, by.x = "SIREN", by.y = "epci")
         
@@ -223,7 +223,7 @@ shinyServer(function(input, output) {
             # Place names    
             mf_label(x = fbig, var = "shortname", halo = TRUE, bg = gray(1, 0.5), adj = c(0.5, -1), r = 0.1, cex = 1, overlap = FALSE)
         }
-
+        
         # Title
         # Prepare title elements
         if(input$typeVar == "pourcent_cumu_"){
@@ -249,29 +249,32 @@ shinyServer(function(input, output) {
         }else{
             v4 <- paste(paste(ages(), collapse = ", "), "ans")
         }
-
-    mf_title(txt = paste0("Pourcentage de vaccination ", v2, ", ", v1, "
+        
+        mf_title(txt = paste0("Pourcentage de vaccination ", v2, ", ", v1, "
 au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence 
 ", v4, " (", v3, ")"
-    # Classe d'age ", ncl, 
-    #                       #", Moyenne nationale ", round(100*get(paste0("moy_cumu_", var)), 1), "%"
-                           ), bg = gray(1, 1), fg = gray(0, 1),
-                      font = 1, tab = FALSE, line = 0, inner = FALSE)
+                              # Classe d'age ", ncl, 
+                              #                       #", Moyenne nationale ", round(100*get(paste0("moy_cumu_", var)), 1), "%"
+        ), bg = gray(1, 1), fg = gray(0, 1),
+        font = 1, tab = FALSE, line = 0, inner = FALSE)
+        
+        mf_credits(paste0("@flodebarre\n",
+                          "Données vaccination : Ameli https://datavaccin-covid.ameli.fr/\n",
+                          "Contours EPCI : Banatic, ",
+                          "Contours communes : © les contributeurs d'OpenStreetMap sous licence ODbL. ",
+                          "mapsf ",
+                          packageVersion("mapsf")), cex = 0.8)
+
+    })
     
-    mf_credits(paste0("@flodebarre\n",
-                      "Données vaccination : Ameli https://datavaccin-covid.ameli.fr/\n",
-                      "Contours EPCI : Banatic, ",
-                      "Contours communes : © les contributeurs d'OpenStreetMap sous licence ODbL. ",
-                      "mapsf ",
-                      packageVersion("mapsf")), cex = 0.8)
-
-
-
-    #-----------------------------------------------------------------------
+    output$map <- renderPlot({
+        print({
+            mf_init(x = france, expandBB = rep(0, 4))#c(0, 0.1, 0.05, 0.175))
+            plotMap()})
 
     
         }) # End plot map
-    
+
 
     plotDROM <- function(map, tit){
         
@@ -359,5 +362,115 @@ au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence
     output$mapMarseille <- renderPlot({
         plotCommunes("Marseille et autour", deps = c("13", "83", "84"))
     })
+    
+    
+    ### Functions for download ----------------------------------------------------
+    
+    plotMap2 <- reactive({
+        
+        # Get the data
+        tmpdata <- getdata()
+        subEPCI <- tmpdata[["subEPCI"]]
+        subCom <- tmpdata[["subCom"]]
+        
+        # Define palette
+        tmppal <- getPalette(input$typeVar, input$invCol, input$pal)
+        pal <- tmppal[["pal"]]
+        brks <- tmppal[["brks"]]
+        
+        # Map theme
+        mf_theme(mar = c(0, 0, 2.5, 0), #c(0, 0.2, 1.5, 0.5),
+                 bg = gray(1, 1))
+        
+        ## France metropolitaine ##
+        tmp <- merge(france, subEPCI, by.x = "SIREN", by.y = "epci")
+        
+        # Plot choropleth
+        mf_map(tmp,
+               var = thevar(),
+               type = "choro", add = TRUE,
+               leg_pos = "topleft", leg_title = "",
+               breaks = brks, pal = pal,
+               border = brd.col, lwd = brd.lwd, leg_val_rnd = 0,
+               col_na = colNA, 
+               leg_no_data = "pas de données"
+        )
+        
+        # Add names of the main cities
+        if(input$villes == "TRUE"){
+            # Select EPCI with population size bigger than threshold
+            fbig <- france[france$POPULATION > 450000,]
+            # Hard code short names...
+            fbig$shortname <- c("Rouen", "Nice", "Grenoble", "Lyon", "Paris", "Marseille", "Lille", "Toulouse", "Bordeaux", "Montpellier", "Rennes", "Nantes", "Strasbourg")
+            fbig$pt <- 1
+            # Place dots
+            mf_map(x = fbig, type = "prop", var = "pt", inches = 0.025, col = gray(0.5), leg_pos = "n")
+            # Place names    
+            mf_label(x = fbig, var = "shortname", halo = TRUE, bg = gray(1, 0.5), adj = c(0.5, -1), r = 0.1, cex = 1, overlap = FALSE)
+        }
+        
+    
+        
+        
+        ### END INSETS
+        ###-----------------------------------------------------------------------------------
+        
+        # Title
+        # Prepare title elements
+        if(input$typeVar == "pourcent_cumu_"){
+            v1 <- ""
+        }else{
+            v1 <- "écart à la moyenne nationale, "
+        }
+        
+        if(input$var == "termine"){
+            v2 <- "terminée"
+        }else{
+            v2 <- "au moins une injection"
+        }
+        
+        if(ageCorr() == "TRUE"){
+            v3 <- "avec correction d'âge"
+        }else{
+            v3 <- "sans correction d'âge"
+        }
+        
+        if(length(ages()) == 6){
+            v4 <- "tous âges"
+        }else{
+            v4 <- paste(paste(ages(), collapse = ", "), "ans")
+        }
+        
+        mf_title(txt = paste0("Pourcentage de vaccination ", v2, ", ", v1, "au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence, ", v4, " (", v3, ")"
+                              # Classe d'age ", ncl, 
+                              #                       #", Moyenne nationale ", round(100*get(paste0("moy_cumu_", var)), 1), "%"
+        ), bg = gray(1, 1), fg = gray(0, 1),
+        font = 1, tab = TRUE, line = 0, inner = TRUE, 
+        cex = 0.7)
+        
+        mf_credits(paste0("@flodebarre\n",
+                          "Données vaccination : Ameli https://datavaccin-covid.ameli.fr/\n",
+                          "Contours EPCI : Banatic, ",
+                          "Contours communes : © les contributeurs d'OpenStreetMap sous licence ODbL. ",
+                          "mapsf ",
+                          packageVersion("mapsf")), cex = 0.7)
+        
+        
+    })
+    
+    output$downloadPlotFrance <- downloadHandler(
+        filename = function() { paste('france', '.', "svg", sep='') },
+        content = function(file) {
+            wdt <- 8
+            hgt <- 7
+            
+            mf_export(france, export = "svg", filename = file, width = wdt * 1, height = hgt * 1, 
+                      expandBB = c(0, 0, 0 ,0))
+            
+            plotMap2()
+            
+            dev.off()
+        })
+    
     
 })

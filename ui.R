@@ -89,7 +89,7 @@ wellPanel(
     ),
     
     fluidRow(
-        column(width = 4, offset = 1, selectInput("pal", "Couleurs", 
+        column(width = 3, selectInput("pal", "Couleurs", 
                                       choices = list("Bleu-Rouge" = "Blue-Red", 
                                                      "Bleu-Rouge 2" = "Blue-Red 2", 
                                                      "Bleu-Rouge 3" = "Blue-Red 3", 
@@ -107,7 +107,9 @@ wellPanel(
                                                      "'Vik'" = "Vik"))),
         
         column(width = 3, checkboxInput("invCol", "Inverser les couleurs", FALSE)),
-        column(width = 3, radioButtons("villes", "Afficher villes", choices = list("oui" = "TRUE", "non" = "FALSE"), inline = TRUE))
+        column(width = 3, radioButtons("villes", "Afficher villes", choices = list("oui" = "TRUE", "non" = "FALSE"), inline = TRUE)), 
+        #column(3, selectInput("formatImage", "Format téléchargement", selected = "png", choices = list("png", "svg"))), 
+        
     ),
     
     
@@ -134,6 +136,14 @@ wellPanel(
 fluidRow(
     column(12, align = "center", plotOutput("map", width = "600px", height = "500px"))
 ),
+
+# Source 
+# https://stackoverflow.com/questions/14810409/save-plots-made-in-a-shiny-app
+fluidRow(
+    column(3, align = "center", downloadButton('downloadPlotFrance', 'Télécharger en .svg'), offset = 5)
+),
+
+tags$style(type='text/css', "#downloadPlotFrance { width:100%; margin-top: 0px;}"),
 
 fluidRow(
     column(1, align = "center", plotOutput("mapGuadeloupe", width = wd1, height = hg1), offset = 4),
