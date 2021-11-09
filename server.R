@@ -7,6 +7,13 @@ library(mapsf) # Package to plot maps
 vaccEPCI <- read.csv("data/vaccEPCI.csv", sep = ";")
 vaccCom <- read.csv("data/vaccCom.csv", sep = ";")
 
+# There are issues with the new data, "NS" transforms data into text instead of numeric
+vaccEPCI[vaccEPCI$population_carto == "NS", "population_carto"] <- NA
+vaccComm[vaccComm$population_carto == "NS", "population_carto"] <- NA
+
+vaccEPCI$population_carto <- as.numeric(vaccEPCI$population_carto)
+vaccComm$population_carto <- as.numeric(vaccComm$population_carto)
+
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
     

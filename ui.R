@@ -15,6 +15,13 @@ library(mapsf) # Package to plot maps
 vaccEPCI <- read.csv("data/vaccEPCI.csv", sep = ";")
 vaccComm <- read.csv("data/vaccCom.csv", sep = ";")
 
+# There are issues with the new data, "NS" transforms data into text instead of numeric
+vaccEPCI[vaccEPCI$population_carto == "NS", "population_carto"] <- NA
+vaccComm[vaccComm$population_carto == "NS", "population_carto"] <- NA
+
+vaccEPCI$population_carto <- as.numeric(vaccEPCI$population_carto)
+vaccComm$population_carto <- as.numeric(vaccComm$population_carto)
+
 wd1 <- "60px"
 hg1 <- "60px"
 
