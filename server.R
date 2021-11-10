@@ -73,14 +73,14 @@ shinyServer(function(input, output) {
             
             # With age correction
             # 1) Compute whole France values
-            totPop <- sum(subEPCI$population_carto) # Total population size in these data
+            totPop <- sum(subEPCI$population_carto, na.rm = TRUE) # Total population size in these data
             
             # Create table of subtotals per age class
             props <- c(0, 0) # Initialize the table (there's maybe a cleaner way to do it)
             # Proportions of each age class
             for(age in sort(unique(subEPCI$classe_age))){
                 subsub <- subEPCI[subEPCI$classe_age == age, ]
-                props <- rbind(props, c(age, sum(subsub$population_carto)))
+                props <- rbind(props, c(age, sum(subsub$population_carto, na.rm = TRUE)))
             }
             props <- as.data.frame(props[-1, ]) # Remove the initialization line
             names(props) <- c("classe_age", "pop")

@@ -67,7 +67,8 @@ wellPanel(
                                              selected = c("75 et +", "65-74", "55-64", "40-54", "20-39", "00-19"), inline = TRUE)
         ), 
         column(width = 3, align = "center", inline = TRUE, radioButtons("ageCorrection", "Correction d'âge", 
-                                       choices = list("oui" = "TRUE", "non" = "FALSE"), 
+                                       choices = list("oui" = "TRUE",
+                                                      "non" = "FALSE"), 
                                        selected = "FALSE")),
     ),
     fluidRow(
