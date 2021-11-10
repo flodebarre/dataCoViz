@@ -9,10 +9,10 @@ vaccCom <- read.csv("data/vaccCom.csv", sep = ";")
 
 # There are issues with the new data, "NS" transforms data into text instead of numeric
 vaccEPCI[vaccEPCI$population_carto == "NS", "population_carto"] <- NA
-vaccComm[vaccComm$population_carto == "NS", "population_carto"] <- NA
+vaccCom[vaccCom$population_carto == "NS", "population_carto"] <- NA
 
 vaccEPCI$population_carto <- as.numeric(vaccEPCI$population_carto)
-vaccComm$population_carto <- as.numeric(vaccComm$population_carto)
+vaccCom$population_carto <- as.numeric(vaccCom$population_carto)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
@@ -123,6 +123,13 @@ shinyServer(function(input, output) {
         subCom$pourcent_diff_cumu_1_inj <- 100 * (subCom$taux_cumu_1_inj - moy_cumu_1_inj) / moy_cumu_1_inj
         subCom$pourcent_diff_cumu_termine <- 100 * (subCom$taux_cumu_termine - moy_cumu_termine) / moy_cumu_termine
         
+        # Compute absolute differences
+        subEPCI$diff_cumu_1_inj <- 100 * (subEPCI$taux_cumu_1_inj - moy_cumu_1_inj)
+        subEPCI$diff_cumu_termine <- 100 * (subEPCI$taux_cumu_termine - moy_cumu_termine)
+        
+        subCom$diff_cumu_1_inj <- 100 * (subCom$taux_cumu_1_inj - moy_cumu_1_inj)
+        subCom$diff_cumu_termine <- 100 * (subCom$taux_cumu_termine - moy_cumu_termine)
+
         # Raw rates, Percentage instead of proportion
         subEPCI$pourcent_cumu_1_inj <- 100 * subEPCI$taux_cumu_1_inj
         subCom$pourcent_cumu_1_inj <- 100 * subCom$taux_cumu_1_inj
@@ -229,14 +236,19 @@ shinyServer(function(input, output) {
             mf_map(x = fbig, type = "prop", var = "pt", inches = 0.025, col = gray(0.5), leg_pos = "n")
             # Place names    
             mf_label(x = fbig, var = "shortname", halo = TRUE, bg = gray(1, 0.5), adj = c(0.5, -1), r = 0.1, cex = 1, overlap = FALSE)
+            #mf_map(st_centroid(st_geometry(fbig)), col = gray(0.5)) 
         }
         
         # Title
         # Prepare title elements
         if(input$typeVar == "pourcent_cumu_"){
             v1 <- ""
-        }else{
-            v1 <- "écart à la moyenne nationale, "
+        }
+        if(input$typeVar == "pourcent_diff_cumu_"){
+            v1 <- "écart relatif à la moyenne nationale (%), "
+        }
+        if(input$typeVar == "diff_cumu_"){
+            v1 <- "écart absolu à la moyenne nationale (points), "
         }
         
         if(input$var == "termine"){
@@ -414,6 +426,8 @@ au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence
             mf_map(x = fbig, type = "prop", var = "pt", inches = 0.025, col = gray(0.5), leg_pos = "n")
             # Place names    
             mf_label(x = fbig, var = "shortname", halo = TRUE, bg = gray(1, 0.5), adj = c(0.5, -1), r = 0.1, cex = 1, overlap = FALSE)
+            #mf_map(st_centroid(st_geometry(fbig)), col = gray(0.5)) 
+            
         }
         
     

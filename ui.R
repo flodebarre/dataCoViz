@@ -13,14 +13,14 @@ library(mapsf) # Package to plot maps
 
 ## Load vaccination data
 vaccEPCI <- read.csv("data/vaccEPCI.csv", sep = ";")
-vaccComm <- read.csv("data/vaccCom.csv", sep = ";")
+vaccCom <- read.csv("data/vaccCom.csv", sep = ";")
 
 # There are issues with the new data, "NS" transforms data into text instead of numeric
 vaccEPCI[vaccEPCI$population_carto == "NS", "population_carto"] <- NA
-vaccComm[vaccComm$population_carto == "NS", "population_carto"] <- NA
+vaccCom[vaccCom$population_carto == "NS", "population_carto"] <- NA
 
 vaccEPCI$population_carto <- as.numeric(vaccEPCI$population_carto)
-vaccComm$population_carto <- as.numeric(vaccComm$population_carto)
+vaccCom$population_carto <- as.numeric(vaccCom$population_carto)
 
 wd1 <- "60px"
 hg1 <- "60px"
@@ -92,7 +92,7 @@ wellPanel(
     fluidRow(
         column(width = 4, radioButtons("var", "Variable à représenter", choices = list("Au moins une dose" = "1_inj", "Vaccination complète" = "termine")), offset = 2),
         
-        column(width = 4, radioButtons("typeVar", "Type de variable", choices = list("Taux de vaccination" = "pourcent_cumu_", "Écart relatif à la moyenne nationale" = "pourcent_diff_cumu_")))
+        column(width = 4, radioButtons("typeVar", "Type de variable", choices = list("Taux de vaccination" = "pourcent_cumu_", "Écart relatif à la moyenne nationale" = "pourcent_diff_cumu_", "Écart absolu à la moyenne" = "diff_cumu_")))
     ),
     
     fluidRow(
