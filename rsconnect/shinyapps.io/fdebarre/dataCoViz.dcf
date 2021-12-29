@@ -5,10 +5,10 @@ account: fdebarre
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4595475
-bundleId: 5237847
+bundleId: 5273875
 url: https://fdebarre.shinyapps.io/dataCoViz/
-when: 1636572070.61977
-lastSyncTime: 1636572070.61979
+when: 1637418345.67747
+lastSyncTime: 1637418345.67749
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: data/.DS_Store|Dockerfile
