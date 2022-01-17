@@ -16,11 +16,11 @@ vaccEPCI <- read.csv("data/vaccEPCI.csv", sep = ";")
 vaccCom <- read.csv("data/vaccCom.csv", sep = ";")
 
 # There are issues with the new data, "NS" transforms data into text instead of numeric
-vaccEPCI[vaccEPCI$population_carto == "NS", "population_carto"] <- NA
-vaccCom[vaccCom$population_carto == "NS", "population_carto"] <- NA
-
-vaccEPCI$population_carto <- as.numeric(vaccEPCI$population_carto)
-vaccCom$population_carto <- as.numeric(vaccCom$population_carto)
+# vaccEPCI[vaccEPCI$population_carto == "NS", "population_carto"] <- NA
+# vaccCom[vaccCom$population_carto == "NS", "population_carto"] <- NA
+# 
+# vaccEPCI$population_carto <- as.numeric(vaccEPCI$population_carto)
+# vaccCom$population_carto <- as.numeric(vaccCom$population_carto)
 
 wd1 <- "60px"
 hg1 <- "60px"
@@ -153,7 +153,7 @@ fluidRow(
 
 tags$style(type='text/css', "#downloadPlotFrance { width:100%; margin-top: 0px;}"),
 
-fluidRow(
+fluidRow( # 
     column(1, align = "center", plotOutput("mapGuadeloupe", width = wd1, height = hg1), offset = 4),
     column(1, align = "center", plotOutput("mapMartinique", width = wd1, height = hg1)),
     column(1, align = "center", plotOutput("mapGuyane", width = wd1, height = hg1)),
@@ -162,7 +162,7 @@ fluidRow(
 ),
 
 
-fluidRow(
+fluidRow( # 
     column(3, align = "center", plotOutput("mapParis", width = wd2, height = hg2), offset = 2),
     column(3, align = "center", plotOutput("mapLyon", width = wd2, height = hg2)),
     column(3, align = "center", plotOutput("mapMarseille", width = wd2, height = hg2))

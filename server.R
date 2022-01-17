@@ -7,25 +7,28 @@ library(mapsf) # Package to plot maps
 vaccEPCI <- read.csv("data/vaccEPCI.csv", sep = ";")
 vaccCom <- read.csv("data/vaccCom.csv", sep = ";")
 
+# 2022-01-14 New version of the dataset is with NAs
 # There are issues with the new data, "NS" transforms data into text instead of numeric
-vaccEPCI[vaccEPCI$population_carto == "NS", "population_carto"] <- NA
-vaccCom[vaccCom$population_carto == "NS", "population_carto"] <- NA
-
-vaccEPCI$population_carto <- as.numeric(vaccEPCI$population_carto)
-vaccCom$population_carto <- as.numeric(vaccCom$population_carto)
+# vaccEPCI[vaccEPCI$population_carto == "NS", "population_carto"] <- NA
+# vaccCom[vaccCom$population_carto == "NS", "population_carto"] <- NA
+# And they are already numeric now
+# vaccEPCI$population_carto <- as.numeric(vaccEPCI$population_carto)
+# vaccCom$population_carto <- as.numeric(vaccCom$population_carto)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
     
+    # Whether to apply age correction
     output$agevalue <- renderPrint(input$ageCorrection)
     
+    # Chosen age classes
     output$ag <- renderPrint(input$agcl)
     
+    
+    ## (Commented out) Attempts to change figure size
     # output$dimension_display <- renderText({
     #     paste(input$dimension[1], input$dimension[2], input$dimension[2]/input$dimension[1])
     # })
-    
-
 #    output$figHeight <- renderText({wd <- input$dimension[1]
 #    if(wd > 800){fgh <- "700px"}else{fgh <- paste0(wd, "px")}
 #    wd})
@@ -53,7 +56,6 @@ shinyServer(function(input, output) {
     thevar <- reactive({paste0(input$typeVar, input$var)})
     
     ag <- reactive({input$agcl})
-    
     fsubEPCI <- reactive(vaccEPCI[which(is.element(vaccEPCI$classe_age, ag()) & vaccEPCI$date == input$thedate), ])
     fsubCom <- reactive(vaccCom[which(is.element(vaccCom$classe_age, ag()) & vaccCom$date == input$thedate), ])
     
@@ -76,14 +78,12 @@ shinyServer(function(input, output) {
             totPop <- sum(subEPCI$population_carto, na.rm = TRUE) # Total population size in these data
             
             # Create table of subtotals per age class
-            props <- c(0, 0) # Initialize the table (there's maybe a cleaner way to do it)
+            props <- data.frame("classe_age" = sort(unique(subEPCI$classe_age)), "pop" = rep(NA, length(unique(subEPCI$classe_age)))) # Initialize the table
             # Proportions of each age class
             for(age in sort(unique(subEPCI$classe_age))){
                 subsub <- subEPCI[subEPCI$classe_age == age, ]
-                props <- rbind(props, c(age, sum(subsub$population_carto, na.rm = TRUE)))
+                props[props$classe_age == age, "pop"] <- sum(subsub$population_carto, na.rm = TRUE)
             }
-            props <- as.data.frame(props[-1, ]) # Remove the initialization line
-            names(props) <- c("classe_age", "pop")
             props$pop <- as.numeric(props$pop) # Turn numerical values back to numeric
             # Compute proportion of the age class
             props$proportionPop <- props$pop / totPop
@@ -95,7 +95,7 @@ shinyServer(function(input, output) {
             
             # Aggregate by EPCI, weigh by the proportions, and sum to have weighted proportions
             aggEPCI <- aggregate(subEPCI$proportionPop * subEPCI[, c("taux_cumu_1_inj", "taux_cumu_termine")], by =  list(epci = subEPCI$epci), FUN = sum, na.rm = TRUE)
-            aggCom <- aggregate(subCom$proportionPop * subCom[, c("taux_cumu_1_inj", "taux_cumu_termine")], by =  list(commune_residence = subCom$commune_residence), FUN = sum, na.rm = TRUE)
+            aggCom <- aggregate(subCom$proportionPop * subCom[, c("taux_cumu_1_inj", "taux_cumu_termine")], by = list(commune_residence = subCom$commune_residence), FUN = sum, na.rm = TRUE)
             
         }else{
             # Without age correction
@@ -149,9 +149,16 @@ shinyServer(function(input, output) {
             # Raw rate
             pal <- colorspace::diverge_hcl(n = 20, palette = thepal) 
             brks <- 100*seq(0, 1, length.out = 21)
-        }else{
-            # Difference to the mean
+        }
+        if(typeVar == "pourcent_diff_cumu_"){
+            # Relative Difference to the mean
             brks <- c(-100, -50, -25, -15, -5, 5, 15, 25, 50, 100)
+            pal <- colorspace::diverge_hcl(length(brks)-1, palette = thepal) 
+            pal[(length(pal)+1)/2] <- gray(0.975) # mid point in white
+        }
+        if(typeVar == "diff_cumu_"){
+            # Absolute difference to the mean
+            brks <- c(-100, -50, -30, -25, -20, -15, -10, -5, 5, 10, 15, 20, 25, 30, 50, 100)
             pal <- colorspace::diverge_hcl(length(brks)-1, palette = thepal) 
             pal[(length(pal)+1)/2] <- gray(0.975) # mid point in white
         }
@@ -188,7 +195,6 @@ shinyServer(function(input, output) {
     cex.title.inset <- 0.8 # cex of the inset title
     cex.title.inset.2 <- 0.9 # cex of the inset title, communes
     
-    
     getdata <- eventReactive(input$calcAg, wrangleData(fsubEPCI(), fsubCom()), ignoreNULL = FALSE)
     # ignoreNULL=FALSE evaluates the result by default
     
@@ -214,14 +220,14 @@ shinyServer(function(input, output) {
         # Initiate a base map
         mf_init(x = tmp, expandBB = rep(0, 4))#c(0, 0.1, 0.05, 0.175))
         
-        # Plot choropleth
+        # Plot choropleth 
         mf_map(tmp,
                var = thevar(),
                type = "choro", add = TRUE,
                leg_pos = "topleft", leg_title = "",
                breaks = brks, pal = pal,
                border = brd.col, lwd = brd.lwd, leg_val_rnd = 0,
-               col_na = colNA, 
+               col_na = colNA,
                leg_no_data = "pas de données"
         )
         
@@ -289,7 +295,8 @@ au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence
     output$map <- renderPlot({
         print({
             mf_init(x = france, expandBB = rep(0, 4))#c(0, 0.1, 0.05, 0.175))
-            plotMap()})
+            plotMap()}
+            )
 
     
         }) # End plot map
@@ -314,9 +321,9 @@ au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence
         mf_init(tmp, expandBB = BB.inset)
         mf_map(tmp, type = "choro", 
                var = thevar(),
-               breaks = brks, pal = pal, 
-               border = brd.col, lwd = brd.lwd, 
-               leg_pos = "n", 
+               breaks = brks, pal = pal,
+               border = brd.col, lwd = brd.lwd,
+               leg_pos = "n",
                col_na = colNA
         )
         mf_title(tit, tab = TRUE, inner = FALSE, cex = cex.title.inset, fg = 1, bg = gray(0, 0), line = line.title, pos = "center")
@@ -340,11 +347,11 @@ au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence
         
         # Plot map
         mf_theme(mar = mar.inset)
-        mf_map(tmp, type = "choro", 
+        mf_map(tmp, type = "choro",
                var = thevar(),
-               breaks = brks, pal = pal, 
-               border = brd.col, lwd = brd.lwd, 
-               leg_pos = "n", 
+               breaks = brks, pal = pal,
+               border = brd.col, lwd = brd.lwd,
+               leg_pos = "n",
                col_na = colNA
         )
         mf_title(tit, tab = TRUE, inner = FALSE, cex = cex.title.inset.2, fg = 1, bg = gray(0, 0), line = line.title.2, pos = "center")
@@ -488,7 +495,7 @@ au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence
             mf_export(france, export = "svg", filename = file, width = wdt * 1, height = hgt * 1, 
                       expandBB = c(0, 0, 0 ,0))
             
-            plotMap2()
+            #plotMap2()
             
             dev.off()
         })
