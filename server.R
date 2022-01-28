@@ -66,9 +66,17 @@ shinyServer(function(input, output) {
     ### Function to compute rates, relative differences and corrected distributions
     wrangleData <- function(subEPCI, subCom){
         
+        #cat(file=stderr(), "before moy calculations\n")
+
+        # Make sure that population is numerical
+        subEPCI$population_carto <- as.numeric(subEPCI$population_carto)
+        subCom$population_carto <- as.numeric(subCom$population_carto)
+        
         # Compute national means on unweighted data
         moy_cumu_1_inj <- sum(subEPCI$effectif_cumu_1_inj, na.rm = TRUE) / sum(subEPCI$population_carto, na.rm = TRUE)
         moy_cumu_termine <- sum(subEPCI$effectif_cumu_termine, na.rm = TRUE) / sum(subEPCI$population_carto, na.rm = TRUE)
+
+        #cat(file=stderr(), "before moy calculations\n")
         
         # What we do next depends on whether we want to apply the age correction or not
         if(input$ageCorrection == "TRUE" & length(input$agcl) > 1){
@@ -495,7 +503,7 @@ au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence
             mf_export(france, export = "svg", filename = file, width = wdt * 1, height = hgt * 1, 
                       expandBB = c(0, 0, 0 ,0))
             
-            #plotMap2()
+            plotMap2()
             
             dev.off()
         })
