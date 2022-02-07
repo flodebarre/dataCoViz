@@ -91,9 +91,9 @@ h4("Affichage"),
 HTML("<i>Il n'y a pas besoin de cliquer sur 'Calculer' si vous ne changez que les options ci-dessous.</i>"),
 wellPanel(
     fluidRow(
-        column(width = 4, radioButtons("var", "Variable à représenter", choices = list("Au moins une dose" = "1_inj", "Vaccination complète" = "termine")), offset = 2),
+        column(width = 4, radioButtons("var", "Variable à représenter", choices = list("Non vacciné·e·s" = "unvaccinated", "Au moins une dose" = "1_inj", "Vaccination complète" = "termine"), selected = "1_inj"), offset = 2),
         
-        column(width = 4, radioButtons("typeVar", "Type de variable", choices = list("Taux de vaccination" = "pourcent_cumu_", "Écart relatif à la moyenne nationale" = "pourcent_diff_cumu_", "Écart absolu à la moyenne" = "diff_cumu_")))
+        column(width = 4, radioButtons("typeVar", "Type de variable", choices = list("Taux de vaccination (ou non-vaccination)" = "pourcent_cumu_", "Écart relatif à la moyenne nationale" = "pourcent_diff_cumu_", "Écart absolu à la moyenne" = "diff_cumu_")))
     ),
     
     fluidRow(

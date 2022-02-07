@@ -72,9 +72,17 @@ shinyServer(function(input, output) {
         subEPCI$population_carto <- as.numeric(subEPCI$population_carto)
         subCom$population_carto <- as.numeric(subCom$population_carto)
         
+        # Compute unvaccinated variable
+        subEPCI$effectif_cumu_unvaccinated <- subEPCI$population_carto - subEPCI$effectif_cumu_1_inj 
+        subCom$effectif_cumu_unvaccinated <- subCom$population_carto  - subCom$effectif_cumu_1_inj
+        
+        subEPCI$taux_cumu_unvaccinated <- 1 - subEPCI$effectif_cumu_1_inj / subEPCI$population_carto 
+        subCom$taux_cumu_unvaccinated <- 1 - subCom$effectif_cumu_1_inj / subCom$population_carto 
+
         # Compute national means on unweighted data
         moy_cumu_1_inj <- sum(subEPCI$effectif_cumu_1_inj, na.rm = TRUE) / sum(subEPCI$population_carto, na.rm = TRUE)
         moy_cumu_termine <- sum(subEPCI$effectif_cumu_termine, na.rm = TRUE) / sum(subEPCI$population_carto, na.rm = TRUE)
+        moy_cumu_unvaccinated <- sum(subEPCI$effectif_cumu_unvaccinated, na.rm = TRUE) / sum(subEPCI$population_carto, na.rm = TRUE)
 
         #cat(file=stderr(), "before moy calculations\n")
         
@@ -102,21 +110,23 @@ shinyServer(function(input, output) {
             subCom <- merge(subCom, props, by = "classe_age")
             
             # Aggregate by EPCI, weigh by the proportions, and sum to have weighted proportions
-            aggEPCI <- aggregate(subEPCI$proportionPop * subEPCI[, c("taux_cumu_1_inj", "taux_cumu_termine")], by =  list(epci = subEPCI$epci), FUN = sum, na.rm = TRUE)
-            aggCom <- aggregate(subCom$proportionPop * subCom[, c("taux_cumu_1_inj", "taux_cumu_termine")], by = list(commune_residence = subCom$commune_residence), FUN = sum, na.rm = TRUE)
+            aggEPCI <- aggregate(subEPCI$proportionPop * subEPCI[, c("taux_cumu_1_inj", "taux_cumu_termine", "taux_cumu_unvaccinated")], by =  list(epci = subEPCI$epci), FUN = sum, na.rm = TRUE)
+            aggCom <- aggregate(subCom$proportionPop * subCom[, c("taux_cumu_1_inj", "taux_cumu_termine", "taux_cumu_unvaccinated")], by = list(commune_residence = subCom$commune_residence), FUN = sum, na.rm = TRUE)
             
         }else{
             # Without age correction
             
             # Sum up values
-            aggEPCI <- aggregate(subEPCI[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine")], by = list(epci = subEPCI$epci), FUN = sum, na.rm = TRUE)
-            aggCom <- aggregate(subCom[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine")], by = list(commune_residence = subCom$commune_residence), FUN = sum, na.rm = TRUE)
+            aggEPCI <- aggregate(subEPCI[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine", "effectif_cumu_unvaccinated")], by = list(epci = subEPCI$epci), FUN = sum, na.rm = TRUE)
+            aggCom <- aggregate(subCom[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine", "effectif_cumu_unvaccinated")], by = list(commune_residence = subCom$commune_residence), FUN = sum, na.rm = TRUE)
             
             # Recompute taux
             aggEPCI$taux_cumu_1_inj <- aggEPCI$effectif_cumu_1_inj / aggEPCI$population_carto
             aggEPCI$taux_cumu_termine <- aggEPCI$effectif_cumu_termine / aggEPCI$population_carto
             aggCom$taux_cumu_1_inj <- aggCom$effectif_cumu_1_inj / aggCom$population_carto
             aggCom$taux_cumu_termine <- aggCom$effectif_cumu_termine / aggCom$population_carto
+            aggEPCI$taux_cumu_unvaccinated <- aggEPCI$effectif_cumu_unvaccinated / aggEPCI$population_carto
+            aggCom$taux_cumu_unvaccinated <- aggCom$effectif_cumu_unvaccinated / aggCom$population_carto
             
         }
         
@@ -127,24 +137,30 @@ shinyServer(function(input, output) {
         # Compute relative differences
         subEPCI$pourcent_diff_cumu_1_inj <- 100 * (subEPCI$taux_cumu_1_inj - moy_cumu_1_inj) / moy_cumu_1_inj
         subEPCI$pourcent_diff_cumu_termine <- 100 * (subEPCI$taux_cumu_termine - moy_cumu_termine) / moy_cumu_termine
+        subEPCI$pourcent_diff_cumu_unvaccinated <- 100 * (subEPCI$taux_cumu_unvaccinated - moy_cumu_unvaccinated) / moy_cumu_unvaccinated
         
         subCom$pourcent_diff_cumu_1_inj <- 100 * (subCom$taux_cumu_1_inj - moy_cumu_1_inj) / moy_cumu_1_inj
         subCom$pourcent_diff_cumu_termine <- 100 * (subCom$taux_cumu_termine - moy_cumu_termine) / moy_cumu_termine
+        subCom$pourcent_diff_cumu_unvaccinated <- 100 * (subCom$taux_cumu_unvaccinated - moy_cumu_unvaccinated) / moy_cumu_unvaccinated
         
         # Compute absolute differences
         subEPCI$diff_cumu_1_inj <- 100 * (subEPCI$taux_cumu_1_inj - moy_cumu_1_inj)
         subEPCI$diff_cumu_termine <- 100 * (subEPCI$taux_cumu_termine - moy_cumu_termine)
+        subEPCI$diff_cumu_unvaccinated <- 100 * (subEPCI$taux_cumu_unvaccinated - moy_cumu_unvaccinated)
         
         subCom$diff_cumu_1_inj <- 100 * (subCom$taux_cumu_1_inj - moy_cumu_1_inj)
         subCom$diff_cumu_termine <- 100 * (subCom$taux_cumu_termine - moy_cumu_termine)
-
+        subCom$diff_cumu_unvaccinated <- 100 * (subCom$taux_cumu_unvaccinated - moy_cumu_unvaccinated)
+        
         # Raw rates, Percentage instead of proportion
         subEPCI$pourcent_cumu_1_inj <- 100 * subEPCI$taux_cumu_1_inj
         subCom$pourcent_cumu_1_inj <- 100 * subCom$taux_cumu_1_inj
-        
+
         subEPCI$pourcent_cumu_termine <- 100 * subEPCI$taux_cumu_termine
         subCom$pourcent_cumu_termine <- 100 * subCom$taux_cumu_termine
         
+        subEPCI$pourcent_cumu_unvaccinated <- 100 * subEPCI$taux_cumu_unvaccinated
+        subCom$pourcent_cumu_unvaccinated <- 100 * subCom$taux_cumu_unvaccinated
         
         list(subEPCI = subEPCI, subCom = subCom)
     }
@@ -160,7 +176,7 @@ shinyServer(function(input, output) {
         }
         if(typeVar == "pourcent_diff_cumu_"){
             # Relative Difference to the mean
-            brks <- c(-100, -50, -25, -15, -5, 5, 15, 25, 50, 100)
+            brks <- c(-300, -200, -100, -75, -50, -35, -25, -15, -5, 5, 15, 25, 35, 50, 75, 100, 200, 300)
             pal <- colorspace::diverge_hcl(length(brks)-1, palette = thepal) 
             pal[(length(pal)+1)/2] <- gray(0.975) # mid point in white
         }
@@ -266,9 +282,13 @@ shinyServer(function(input, output) {
         }
         
         if(input$var == "termine"){
-            v2 <- "terminée"
-        }else{
-            v2 <- "au moins une injection"
+            v2 <- "vaccination terminée"
+        }
+        if(input$var == "1_inj"){
+            v2 <- "vaccination au moins une injection"
+        }
+        if(input$var == "unvaccinated"){
+            v2 <- "non-vaccination"
         }
         
         if(ageCorr() == "TRUE"){
@@ -283,7 +303,7 @@ shinyServer(function(input, output) {
             v4 <- paste(paste(ages(), collapse = ", "), "ans")
         }
         
-        mf_title(txt = paste0("Pourcentage de vaccination ", v2, ", ", v1, "
+        mf_title(txt = paste0("Pourcentage de ", v2, ", ", v1, "
 au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence 
 ", v4, " (", v3, ")"
                               # Classe d'age ", ncl, 
