@@ -179,6 +179,10 @@ shinyServer(function(input, output) {
             brks <- c(-300, -200, -100, -75, -50, -35, -25, -15, -5, 5, 15, 25, 35, 50, 75, 100, 200, 300)
             pal <- colorspace::diverge_hcl(length(brks)-1, palette = thepal) 
             pal[(length(pal)+1)/2] <- gray(0.975) # mid point in white
+            # Remove -300 and -200, because they do not make sense (are only used to center the palettee)
+            imin <- 3 # Position of -100
+            pal <- pal[imin:length(pal)]
+            brks <- brks[imin:length(brks)]
         }
         if(typeVar == "diff_cumu_"){
             # Absolute difference to the mean
@@ -256,16 +260,23 @@ shinyServer(function(input, output) {
         )
         
         # Add names of the main cities
-        if(input$villes == "TRUE"){
+        if(input$villes != "non"){
             # Select EPCI with population size bigger than threshold
             fbig <- france[france$POPULATION > 450000,]
             # Hard code short names...
-            fbig$shortname <- c("Rouen", "Nice", "Grenoble", "Lyon", "Paris", "Marseille", "Lille", "Toulouse", "Bordeaux", "Montpellier", "Rennes", "Nantes", "Strasbourg")
+            fbig$shortname <- c("Rouen", "Nice", "Grenoble", "Lyon", "Paris", "Aix-Marseille", "Lille", "Toulouse", "Bordeaux", "Montpellier", "Rennes", "Nantes", "Strasbourg")
             fbig$pt <- 1
             # Place dots
             mf_map(x = fbig, type = "prop", var = "pt", inches = 0.025, col = gray(0.5), leg_pos = "n")
-            # Place names    
-            mf_label(x = fbig, var = "shortname", halo = TRUE, bg = gray(1, 0.5), adj = c(0.5, -1), r = 0.1, cex = 1, overlap = FALSE)
+            # Place names
+            #   Full name
+            if(input$villes == "oui_complet"){
+                mf_label(x = fbig, var = "RAISON_SOC", halo = TRUE, bg = gray(1, 0.5), adj = c(0.5, -1), r = 0.1, cex = 0.8, overlap = FALSE)
+            }
+            #   Short name
+            if(input$villes == "oui_court"){
+                mf_label(x = fbig, var = "shortname", halo = TRUE, bg = gray(1, 0.5), adj = c(0.5, -1), r = 0.1, cex = 1, overlap = FALSE)
+            }
             #mf_map(st_centroid(st_geometry(fbig)), col = gray(0.5)) 
         }
         
