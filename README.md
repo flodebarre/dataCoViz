@@ -1,5 +1,7 @@
 # dataCoViz
 
+# Vaccination map
+
 ## Data 
 
 Run `loadAmeliData.R` every Friday afternoon to download the new datasets   
