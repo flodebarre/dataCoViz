@@ -4,4 +4,4 @@ data/vaccEPCI.csv
 data/vaccCom.csv
 
 
-rsconnect/
+rsconnect/*
