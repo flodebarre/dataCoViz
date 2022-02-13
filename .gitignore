@@ -1,1 +1,4 @@
 .DS_Store
+
+data/vaccEPCI.csv
+data/vaccCom.csv
