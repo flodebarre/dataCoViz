@@ -3,6 +3,7 @@ library(shiny)
 
 library(mapsf) # Package to plot maps
 
+
 ## Load vaccination data
 vaccEPCI <- read.csv("data/vaccEPCI.csv", sep = ";")
 vaccCom <- read.csv("data/vaccCom.csv", sep = ";")
@@ -36,7 +37,8 @@ shinyServer(function(input, output) {
     
     # Load data 
     ## Load geographic data
-    load("data/mapFiles.RData")
+    load("data/mapFiles_withDepReg.RData")
+    load("data/chefslieux.RData")
     
     # ## Subselect the data for this age class and date
     # ag <- reactive({renderPrint(input$agcl)})
@@ -110,15 +112,15 @@ shinyServer(function(input, output) {
             subCom <- merge(subCom, props, by = "classe_age")
             
             # Aggregate by EPCI, weigh by the proportions, and sum to have weighted proportions
-            aggEPCI <- aggregate(subEPCI$proportionPop * subEPCI[, c("taux_cumu_1_inj", "taux_cumu_termine", "taux_cumu_unvaccinated")], by =  list(epci = subEPCI$epci), FUN = sum, na.rm = TRUE)
-            aggCom <- aggregate(subCom$proportionPop * subCom[, c("taux_cumu_1_inj", "taux_cumu_termine", "taux_cumu_unvaccinated")], by = list(commune_residence = subCom$commune_residence), FUN = sum, na.rm = TRUE)
+            aggEPCI <- aggregate(subEPCI$proportionPop * subEPCI[, c("taux_cumu_1_inj", "taux_cumu_termine", "taux_cumu_unvaccinated")], by =  list(epci = subEPCI$epci), FUN = sum)
+            aggCom <- aggregate(subCom$proportionPop * subCom[, c("taux_cumu_1_inj", "taux_cumu_termine", "taux_cumu_unvaccinated")], by = list(commune_residence = subCom$commune_residence), FUN = sum)
             
         }else{
             # Without age correction
             
             # Sum up values
-            aggEPCI <- aggregate(subEPCI[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine", "effectif_cumu_unvaccinated")], by = list(epci = subEPCI$epci), FUN = sum, na.rm = TRUE)
-            aggCom <- aggregate(subCom[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine", "effectif_cumu_unvaccinated")], by = list(commune_residence = subCom$commune_residence), FUN = sum, na.rm = TRUE)
+            aggEPCI <- aggregate(subEPCI[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine", "effectif_cumu_unvaccinated")], by = list(epci = subEPCI$epci), FUN = sum)
+            aggCom <- aggregate(subCom[, c("population_carto", "effectif_1_inj", "effectif_termine", "effectif_cumu_1_inj", "effectif_cumu_termine", "effectif_cumu_unvaccinated")], by = list(commune_residence = subCom$commune_residence), FUN = sum)
             
             # Recompute taux
             aggEPCI$taux_cumu_1_inj <- aggEPCI$effectif_cumu_1_inj / aggEPCI$population_carto
@@ -165,19 +167,33 @@ shinyServer(function(input, output) {
         list(subEPCI = subEPCI, subCom = subCom)
     }
     
-    
+    palsMB <- c("Cassatt1", "Cassatt2", "Derain", "Hiroshige", "Ingres", "Morgenstern", "OKeeffe1", "Veronese")
     ### Function to get the color palette
     getPalette <- function(typeVar, invCol, thepal){        
         # Number of colors and breaks depends on what we are plotting
         if(typeVar == "pourcent_cumu_"){
+            ncols <- 20
             # Raw rate
-            pal <- colorspace::diverge_hcl(n = 20, palette = thepal) 
-            brks <- 100*seq(0, 1, length.out = 21)
+            if(is.element(thepal, palsMB)){
+                pal <- met.brewer(thepal, ncols, "continuous")
+            }else{
+                pal <- colorspace::diverge_hcl(n = ncols, palette = thepal)
+            }
+            # Order of the colors
+            if(invCol){ pal <- rev(pal) }
+            brks <- 100*seq(0, 1, length.out = ncols + 1)
         }
         if(typeVar == "pourcent_diff_cumu_"){
             # Relative Difference to the mean
             brks <- c(-300, -200, -100, -75, -50, -35, -25, -15, -5, 5, 15, 25, 35, 50, 75, 100, 200, 300)
-            pal <- colorspace::diverge_hcl(length(brks)-1, palette = thepal) 
+            ncols <- length(brks) - 1
+            if(is.element(thepal, palsMB)){
+                pal <- met.brewer(thepal, ncols, "continuous")
+            }else{
+                pal <- colorspace::diverge_hcl(n = ncols, palette = thepal)
+            }
+            # Order of the colors
+            if(invCol){ pal <- rev(pal) }
             pal[(length(pal)+1)/2] <- gray(0.975) # mid point in white
             # Remove -300 and -200, because they do not make sense (are only used to center the palettee)
             imin <- 3 # Position of -100
@@ -187,14 +203,17 @@ shinyServer(function(input, output) {
         if(typeVar == "diff_cumu_"){
             # Absolute difference to the mean
             brks <- c(-100, -50, -30, -25, -20, -15, -10, -5, 5, 10, 15, 20, 25, 30, 50, 100)
-            pal <- colorspace::diverge_hcl(length(brks)-1, palette = thepal) 
+            ncols <- length(brks) - 1
+            if(is.element(thepal, palsMB)){
+                pal <- met.brewer(thepal, ncols, "continuous")
+            }else{
+                pal <- colorspace::diverge_hcl(n = ncols, palette = thepal)
+            }
+            # Order of the colors
+            if(invCol){ pal <- rev(pal) }
             pal[(length(pal)+1)/2] <- gray(0.975) # mid point in white
         }
         
-        # Order of the colors
-        if(invCol){
-            pal <- rev(pal)
-        }
         
         list(pal = pal, brks = brks)
     }
@@ -205,7 +224,7 @@ shinyServer(function(input, output) {
     brd.col <- gray(0.6, 1)
     brd.lwd <- 0.5
     
-    colNA <- gray(0.7)
+    colNA <- gray(0.75)
     
     ##### Insets
     # Size of the insets for DOM
@@ -259,26 +278,19 @@ shinyServer(function(input, output) {
                leg_no_data = "pas de données"
         )
         
-        # Add names of the main cities
-        if(input$villes != "non"){
-            # Select EPCI with population size bigger than threshold
-            fbig <- france[france$POPULATION > 450000,]
-            # Hard code short names...
-            fbig$shortname <- c("Rouen", "Nice", "Grenoble", "Lyon", "Paris", "Aix-Marseille", "Lille", "Toulouse", "Bordeaux", "Montpellier", "Rennes", "Nantes", "Strasbourg")
-            fbig$pt <- 1
-            # Place dots
-            mf_map(x = fbig, type = "prop", var = "pt", inches = 0.025, col = gray(0.5), leg_pos = "n")
-            # Place names
-            #   Full name
-            if(input$villes == "oui_complet"){
-                mf_label(x = fbig, var = "RAISON_SOC", halo = TRUE, bg = gray(1, 0.5), adj = c(0.5, -1), r = 0.1, cex = 0.8, overlap = FALSE)
-            }
-            #   Short name
-            if(input$villes == "oui_court"){
-                mf_label(x = fbig, var = "shortname", halo = TRUE, bg = gray(1, 0.5), adj = c(0.5, -1), r = 0.1, cex = 1, overlap = FALSE)
-            }
-            #mf_map(st_centroid(st_geometry(fbig)), col = gray(0.5)) 
-        }
+        # Add departements
+        mf_map(mdeps, type = "base", add = TRUE, col = gray(0, 0), lwd = 0.5, border = "black")
+        # Add regions
+        mf_map(mregions.metro, type = "base", add = TRUE, col = gray(0, 0), border = "black", lwd = 1)
+        # Add cities
+        chfl.dep$pt <- 1
+        chfl.reg$pt <- 1
+        colCity <- gray(0.8)
+        mf_map(x = chfl.dep, type = "prop", var = "pt", inches = 0.02, col = colCity, leg_pos = "n")
+        mf_map(x = chfl.reg, type = "prop", var = "pt", inches = 0.04, col = colCity, leg_pos = "n")
+        # Add names chefs lieux regions
+        mf_label(x = chfl.reg, var = "nom", halo = TRUE, bg = gray(1, 0.5), adj = c(0.5, -1), r = 0.1, cex = 0.8, overlap = FALSE)
+        
         
         # Title
         # Prepare title elements
@@ -393,6 +405,7 @@ au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence
                leg_pos = "n",
                col_na = colNA
         )
+
         mf_title(tit, tab = TRUE, inner = FALSE, cex = cex.title.inset.2, fg = 1, bg = gray(0, 0), line = line.title.2, pos = "center")
     }
     
@@ -417,15 +430,15 @@ au ", format(as.Date(thedate()), "%d/%m/%Y"), ", par lieu de résidence
     })
     
     output$mapParis <- renderPlot({
-        plotCommunes("Paris et autour", deps = c("75", "91", "92", "93", "94", "95"))
+        plotCommunes("Métropole du Grand Paris", deps = c("75", "91", "92", "93", "94", "95"))
     })
     
     output$mapLyon <- renderPlot({
-        plotCommunes("Lyon et autour", deps = c("69"))
+        plotCommunes("Métropole de Lyon", deps = c("69"))
     })
 
     output$mapMarseille <- renderPlot({
-        plotCommunes("Marseille et autour", deps = c("13", "83", "84"))
+        plotCommunes("Métropole d'Aix-Marseille-Provence", deps = c("13", "83", "84"))
     })
     
     

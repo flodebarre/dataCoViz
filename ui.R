@@ -11,6 +11,8 @@ library(shiny)
 
 library(mapsf) # Package to plot maps
 
+library(MetBrewer)
+
 ## Load vaccination data
 vaccEPCI <- read.csv("data/vaccEPCI.csv", sep = ";")
 vaccCom <- read.csv("data/vaccCom.csv", sep = ";")
@@ -113,12 +115,14 @@ wellPanel(
                                                      "'Tropique'" = "Tropic", 
                                                      "'Broc'" = "Broc", 
                                                      "'Cork'" = "Cork", 
-                                                     "'Vik'" = "Vik"))),
+                                                     "'Vik'" = "Vik", 
+                                                     "Cassatt1" = "Cassatt1", 
+                                                     "Cassatt2" = "Cassatt2", 
+                                                     "Hiroshige" = "Hiroshige", 
+                                                     "OKeeffe1" = "OKeeffe1"))),
         
         column(width = 3, checkboxInput("invCol", "Inverser les couleurs", FALSE)),
-        column(width = 3, radioButtons("villes", "Afficher noms des EPCI", choices = list("oui, nom complet" = "oui_complet", "oui, nom court" = "oui_court", "non" = "non"), inline = FALSE, selected = "oui_complet")), 
-        #column(3, selectInput("formatImage", "Format téléchargement", selected = "png", choices = list("png", "svg"))), 
-        
+
     ),
     
     
@@ -148,9 +152,9 @@ fluidRow(
 
 # Source 
 # https://stackoverflow.com/questions/14810409/save-plots-made-in-a-shiny-app
-fluidRow(
-    column(3, align = "center", downloadButton('downloadPlotFrance', 'Télécharger en .svg'), offset = 5)
-),
+# fluidRow(
+#     column(3, align = "center", downloadButton('downloadPlotFrance', 'Télécharger en .svg'), offset = 5)
+# ),
 
 tags$style(type='text/css', "#downloadPlotFrance { width:100%; margin-top: 0px;}"),
 
@@ -181,9 +185,6 @@ fluidRow(
     h4("Que se passe-t-il à la frontière suisse ?"), 
     HTML("Je me pose la question <a href = 'https://twitter.com/flodebarre/status/1420811796642947076?s=20&t=eKRo0kOvZ_P9Xa5YdVNGJA'>depuis juillet</a>. On pourrait penser que c'est parce que les frontaliers ont été vaccinés en Suisse et ne sont pas comptabilisés dans les données françaises. C'est peut-être en partie le cas, mais il faut aussi noter que l'effet est aussi présent chez les retraités (plus de 65 ans ; testez par vous-même en jouant avec les âges inclus), et que, en février 2022, <a href = 'https://ourworldindata.org/explorers/coronavirus-data-explorer?zoomToSelection=true&time=2022-02-10&facet=none&pickerSort=asc&pickerMetric=location&Metric=People+vaccinated+%28by+dose%29&Interval=7-day+rolling+average&Relative+to+Population=true&Color+by+test+positivity=false&country=FRA~CHE'>la Suisse est moins vaccinée que la France</a>."),
     #
-    h4("Pourquoi Nice n'est plus au bord de la mer ?"),
-    HTML("Les points ne correspondent pas aux villes elles-mêmes, mais au centre des EPCI."),
-    #
     h4("+ 200% ? Quésaco ?"), 
     HTML("Vous êtes en train de regarder les différences relatives. Une différence relative de + 200% veut dire que la valeur dans la localité est 3 fois plus grande que la moyenne nationale."),
     #
@@ -191,10 +192,13 @@ fluidRow(
     HTML("La carte de France est à l'échelle des <i>Établissements publics de coopération intercommunale</i> (EPCI) ; c'est à cette échelle que sont fournies les données par <a href = 'https://datavaccin-covid.ameli.fr/explore/dataset/donnees-de-vaccination-par-epci/information/'>l'Assurance Maladie</a>. Un EPCI est un regroupement de communes, et vous en saurez plus <a href = 'https://fr.wikipedia.org/wiki/Établissement_public_de_coopération_intercommunale'>via Wikipedia</a>."),
     #
     h4("Pourriez-vous ajouter les contours des départements / régions ?"), 
-    HTML("Il faut que je trouve un fond de carte au bon format (je ne peux pas le faire avec le fond de carte actuel, car certains EPCI sont à cheval sur plusieurs départements). J'ai fait cette appli pendant mes vacances cet été, et je n'ai plus le temps en ce moment que pour des mises à jour et de petites modifications. Si vous avez un tel fond de carte (Projected CRS: RGF93 / Lambert-93), n'hésitez pas à me contacter. "), 
+    HTML("C'est fait maintenant ! "), 
     #
     h4("Serait-il possible d'avoir une carte interactive ?"), 
-    HTML("Ce n'est pas possible avec le <a href = 'https://rgeomatic.hypotheses.org/2212'>kit de cartographie</a> que j'utilise, et je n'ai pas le temps en ce moment d'apprendre à en utiliser un autre. Des cartes interactives par régions sont disponibles sur le <a href = 'https://datavaccin-covid.ameli.fr/pages/details-epci-communes/'>site de l'Assurance Maladie</a> (mais avec moins de fonctionnalités). ")
+    HTML("Ce n'est pas possible avec le <a href = 'https://rgeomatic.hypotheses.org/2212'>kit de cartographie</a> que j'utilise, et je n'ai pas le temps en ce moment d'apprendre à en utiliser un autre. Des cartes interactives par régions sont disponibles sur le <a href = 'https://datavaccin-covid.ameli.fr/pages/details-epci-communes/'>site de l'Assurance Maladie</a> (mais avec moins de fonctionnalités). "),
+    #
+    h4("Pourquoi certaines palettes de couleurs ont-elles des noms de peintres ? "), 
+    HTML("Les palettes avec des noms de peintres viennent du <a href = 'https://github.com/BlakeRMills/MetBrewer'>package MetBrewer</a>; elles sont tirées de tableaux des peintres en question.")
     )),
 
 fluidRow(HTML("&nbsp;")), 
