@@ -51,19 +51,25 @@ rdt <- range(out$date)
 wpng <- 8
 hpng <- 4.5
 respng <- 300
-marpng <- c(5, 4, 3, 4)
+marpng <- c(4.5, 5, 2.5, 5)
+URLGit <- "https://github.com/flodebarre/dataCoViz/blob/main/comparisonSPFCNAM.R"
+cexcredit <- 0.55
+linecredit <- 3.5
+mgppng <- c(2.5, 0.5, 0)
+tckpng <- -0.015
 
 fname1 <- "../covid_vaccination/pics/vaccCNAMOverTime.png"
 
 png(filename = fname1, width = wpng, height = hpng, units = "in", res = respng)
-par(las = 1, mar = marpng)
+par(las = 1, mar = marpng, mgp = mgppng, tck = tckpng)
 plot(0, xlim = rdt, ylim = c(0, 100), 
      axes = FALSE, xlab = "", ylab = "Prop. vaccinés")
+for(i in seq(0, 1, by = 0.1)) abline(h = 100 * i, col = gray(0.9), lwd = 1)
+for(i in seq(0, 1, by = 0.1) - 0.05) abline(h = 100 * i, col = gray(0.9), lwd = 0.5)
+
 dtt <- 7
 axis(2, lwd = 0, at = 100 * seq(0, 1, by = 0.1), pos = rdt[1] - dtt, lwd.ticks = 1)
 axis(4, lwd = 0, at = 100 * seq(0, 1, by = 0.1), pos = rdt[2] + dtt, lwd.ticks = 1)
-for(i in seq(0, 1, by = 0.1)) abline(h = 100 * i, col = gray(0.9), lwd = 1)
-for(i in seq(0, 1, by = 0.1) - 0.05) abline(h = 100 * i, col = gray(0.9), lwd = 0.5)
 mnths <- seq(as.Date("2020-12-27"), Sys.Date() - 7, by = "month")
 axis(1, at = mnths, labels = rep("", length(mnths)), pos = 0)
 axis(1, at = mnths, labels = format(mnths, "%b\n%Y"), lwd = 0)
@@ -79,7 +85,8 @@ legend("topleft", col = rev(palAg), legend = rev(names(palAg)), lty = 1, title =
 
 title(main = "Vaccination au moins une dose")
 mtext(side = 1, text = paste0("@flodebarre, ", Sys.Date(), "\n",
-                          "Données vaccination : Assurance Maladie https://datavaccin-covid.ameli.fr/"), col = gray(0.5), adj = 0, family = "mono", cex = 0.7, line = 3)
+                          "Données vaccination : Assurance Maladie https://datavaccin-covid.ameli.fr/
+Code: ", URLGit), col = gray(0.5), adj = 0, family = "mono", cex = cexcredit, line = linecredit)
 dev.off()
 system(paste0("open ", fname1))
 #............................................................
@@ -115,7 +122,7 @@ datSPF$agMin <- agMin[as.character(datSPF$clage_vacsi)]
 # PLOT 2: Comparison SPF and CNAM ####
 fname2 <- "../covid_vaccination/pics/vaccComparisonCNAMSPF.png"
 png(filename = fname2, width = wpng, height = hpng, units = "in", res = respng)
-par(las = 1, mar = marpng)
+par(las = 1, mar = marpng, mgp = mgppng, tck = tckpng)
 lwdd <- 3.5
 plot(0, type = "n", xlim = c(0, max(agMax)), ylim = c(0, 100), 
      frame.plot = FALSE, 
@@ -123,7 +130,7 @@ plot(0, type = "n", xlim = c(0, max(agMax)), ylim = c(0, 100),
      axes = FALSE, xaxs = "i", yaxs = 'i')
 axis(2, lwd = 0, pos = 0, lwd.ticks = 1, at = seq(0, 100, by = 10))
 axis(1, at = seq(0, 100, by = 10), lwd = 0, lwd.ticks = 1, pos = 0)
-mtext(side = 1, text = "ages", line = 2)
+mtext(side = 1, text = "âges", line = 1.5)
 for(i in seq(0, 100, by = 10)) abline(h = i, col = gray(0.8))
 for(i in seq(0, max(agMax))) abline(v = i, col = gray(0.9))
 pal <- met.brewer("Cassatt1", 2, "discrete")
@@ -148,7 +155,8 @@ title(main = "Comparaison couvertures vaccinales SPF vs. Assurance Maladie")
 mtext(side = 1, text = paste0("@flodebarre, ", Sys.Date(), "\n",
                               "Données vaccination : 
 - Assurance Maladie https://datavaccin-covid.ameli.fr/
-- SPF https://www.data.gouv.fr/en/datasets/donnees-relatives-aux-personnes-vaccinees-contre-la-covid-19-1/"), col = gray(0.5), adj = 0, family = "mono", cex = 0.6, line = 4)
+- SPF https://www.data.gouv.fr/en/datasets/donnees-relatives-aux-personnes-vaccinees-contre-la-covid-19-1/
+Code: ", URLGit), col = gray(0.5), adj = 0, family = "mono", cex = cexcredit, line = linecredit)
 
 dev.off()
 system(paste0("open ", fname2))
