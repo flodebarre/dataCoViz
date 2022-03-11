@@ -5,3 +5,5 @@ data/vaccCom.csv
 
 
 rsconnect/*
+.Rproj.user
+*.Rproj
