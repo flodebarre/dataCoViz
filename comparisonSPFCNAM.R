@@ -162,4 +162,5 @@ dev.off()
 system(paste0("open ", fname2))
 #...............................................................
 
+# Compute SPF vaccination rate for adults
 sum(datSPF[datSPF$agMin > 17, "n_tot_dose1"]) / sum(datSPF[datSPF$agMin > 17, "pop"])
