@@ -27,8 +27,8 @@ vaccCom <- read.csv("data/vaccCom.csv", sep = ";")
 wd1 <- "60px"
 hg1 <- "60px"
 
-wd2 <- "150px"
-hg2 <- "150px"
+wd2 <- "200px"
+hg2 <- "200px"
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
@@ -119,7 +119,9 @@ wellPanel(
                                                      "Cassatt1" = "Cassatt1", 
                                                      "Cassatt2" = "Cassatt2", 
                                                      "Hiroshige" = "Hiroshige", 
-                                                     "OKeeffe1" = "OKeeffe1"))),
+                                                     "Morgenstern" = "Morgenstern",
+                                                     "OKeeffe1" = "OKeeffe1",
+                                                     "Paquin" = "Paquin"))),
         
         column(width = 3, checkboxInput("invCol", "Inverser les couleurs", FALSE)),
 

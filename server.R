@@ -167,7 +167,7 @@ shinyServer(function(input, output) {
         list(subEPCI = subEPCI, subCom = subCom)
     }
     
-    palsMB <- c("Cassatt1", "Cassatt2", "Derain", "Hiroshige", "Ingres", "Morgenstern", "OKeeffe1", "Veronese")
+    palsMB <- c("Cassatt1", "Cassatt2", "Derain", "Hiroshige", "Ingres", "Morgenstern", "OKeeffe1", "Veronese", "Paquin", "Troy")
     ### Function to get the color palette
     getPalette <- function(typeVar, invCol, thepal){        
         # Number of colors and breaks depends on what we are plotting
